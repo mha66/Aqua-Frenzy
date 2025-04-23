@@ -15,6 +15,7 @@ def triangle(x1, y1, x2, y2, x3, y3, r, g, b):
     glVertex2f(x3, y3)
     glEnd()
 
+
 def rectangle_gradient(x1, y1, x2, y2, r1, g1, b1, r2, g2, b2):
     glBegin(GL_QUADS)
     glColor3f(r1/255, g1/255, b1/255)
@@ -116,11 +117,14 @@ def shark(x, y, size=1.0, reverse=False):
 def main():
     pg.init()
 
-    display = (800,800)
+    display = (1600,1000)
     pg.display.set_mode(display, DOUBLEBUF|OPENGL)
 
-    glOrtho(-1, 1, -1, 1, -1, 1)
-    glDisable(GL_DEPTH_TEST)  
+    gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+    glTranslatef(0, 0, -2.4)
+
+    #glOrtho(-1, 1, -1, 1, -1, 1)
+    glDisable(GL_DEPTH_TEST)  #remove this
     
     while True:
         for event in pg.event.get():
@@ -129,9 +133,10 @@ def main():
                 return
         
         glClear(GL_COLOR_BUFFER_BIT)
+
         #background
-        rectangle_gradient(-1, -0.7, 1, 1, 23, 20, 188, 65, 142, 188)
-        rectangle_gradient(-1, -1, 1, -0.7, 187, 134, 23, 240, 180, 58)
+        rectangle_gradient(-2, -0.7, 2, 1, 23, 20, 188, 65, 142, 188)
+        rectangle_gradient(-2, -1, 2, -0.7, 187, 134, 23, 240, 180, 58)
 
         shark(0, 0)
         fish(0.4, 0.8, 255, 0, 0, 0.6, True)
