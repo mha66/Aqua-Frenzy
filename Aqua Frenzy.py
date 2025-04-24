@@ -15,6 +15,15 @@ def triangle(x1, y1, x2, y2, x3, y3, r, g, b):
     glVertex2f(x3, y3)
     glEnd()
 
+def triangle_gradient(x1, y1, x2, y2, x3, y3, r1, g1, b1, r2, g2, b2):
+    glBegin(GL_TRIANGLES)
+    glColor3f(r1/255, g1/255, b1/255)
+    glVertex2f(x1, y1)
+    glColor3f(r2/255, g2/255, b2/255)
+    glVertex2f(x2, y2)
+    glVertex2f(x3, y3)
+    glEnd()
+
 
 def rectangle_gradient(x1, y1, x2, y2, r1, g1, b1, r2, g2, b2):
     glBegin(GL_QUADS)
@@ -60,21 +69,69 @@ def ellipse_gradient(xc, yc, radius_x, radius_y, num_segments, r1, g1, b1, r2, g
         glVertex2f(x, y)
     glEnd()
 
-# def normalize(x_size, y_size, *coordinates):
-#     tmp = []
-#     for i in range(len(coordinates)):
-#         if i%2 == 0:
-#             tmp.append(coordinates[i] * 2/x_size - 1)
-#         else:
-#             tmp.append(-coordinates[i] * 2/y_size + 1)
-#     return tmp
+def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=False):
+    if fill:
+        glBegin(GL_POLYGON)
+    else:
+        glBegin(GL_LINE_STRIP)    
+
+    glColor3f(r/255, g/255, b/255)
+    t=0
+    while t <= 1:
+        xA = (1-t)*x1 + t*x2
+        yA = (1-t)*y1 + t*y2
+        
+        xB = (1-t)*x2 + t*x3
+        yB = (1-t)*y2 + t*y3
+
+        xP = (1-t)*xA + t*xB
+        yP = (1-t)*yA + t*yB
+    
+        glVertex2f(xP, yP)
+        t += 0.01
+
+    glEnd()
+
+def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=False):
+    if fill:
+        glBegin(GL_POLYGON)
+    else:
+        glBegin(GL_LINE_STRIP)    
+
+    glColor3f(r/255, g/255, b/255)
+    t=0
+    while t <= 1:
+        xA = (1-t)*x1 + t*x2
+        yA = (1-t)*y1 + t*y2
+        
+        xB = (1-t)*x2 + t*x3
+        yB = (1-t)*y2 + t*y3
+
+        xC = (1-t)*x3 + t*x4
+        yC = (1-t)*y3 + t*y4
+
+        xP = (1-t)*xA + t*xB
+        yP = (1-t)*yA + t*yB
+
+        xQ = (1-t)*xB + t*xC
+        yQ = (1-t)*yB + t*yC
+
+        xR = (1-t)*xP + t*xQ
+        yR = (1-t)*yP + t*yQ
+    
+        glVertex2f(xR, yR)
+        t += 0.01
+
+    glEnd()
+
 
 def fish(x, y, r, g, b, size=1.0, reverse=False):
         glPushMatrix()
-        glScale(size, size, 0)
-        glTranslate(x, y, 0)
+        glScalef(size, size, 0)
+        glTranslatef(x, y, 0)
         if reverse:
-            glRotate(180, 0, 1, 0)
+            glRotatef(180, 0, 1, 0)
+
         #tail fins
         triangle(-0.376, 0.189, -0.333, -0.023, -0.235, -0.023, r, g, b)
         triangle(-0.376, -0.234, -0.333, -0.023, -0.235, -0.023, r, g, b)
@@ -87,16 +144,18 @@ def fish(x, y, r, g, b, size=1.0, reverse=False):
         #upper fins
         triangle(0.1, 0.25, -0.05, 0.1, 0.15, 0.1, r, g, b)
         triangle(-0.09, 0.2, -0.1, 0.1, 0.1, 0.1, r, g, b)
+
         glPopMatrix()
 
 def shark(x, y, size=1.0, reverse=False):
         upper_color = (151, 156, 168)
         lower_color = (180, 186, 191)
         glPushMatrix()
-        glScale(size, size, 0)
-        glTranslate(x, y, 0)
+        glScalef(size, size, 0)
+        glTranslatef(x, y, 0)
         if reverse:
-            glRotate(180, 0, 1, 0)
+            glRotatef(180, 0, 1, 0)
+
         #snout
         triangle(-0.4, 0.08, -0.4, -0.08, -0.55, 0.02, *upper_color)
         #tail fins
@@ -111,6 +170,31 @@ def shark(x, y, size=1.0, reverse=False):
         ellipse_gradient(0, 0, 0.5, 0.13, 180, *upper_color, *lower_color, 0.55)
         #eye
         circle(-0.4, 0.03, 0.015, 180, 0, 0, 0)
+
+        glPopMatrix()
+
+def tropical_fish(x, y, size=1.0, reverse=False):
+        glPushMatrix()
+        glScalef(size, size, 0)
+        glTranslatef(x, y, 0)
+        if reverse:
+            glRotatef(180, 0, 1, 0)
+
+        #outer fins
+        cubic_bezier_curve(-0.2, 0.02, -0.12, 0.16, 0.08, 0.16, 0.2, 0, 252, 218, 0, True)
+        cubic_bezier_curve(-0.2, -0.02, -0.12, -0.16, 0.08, -0.16, 0, 0, 252, 218, 0, True)
+        #tail fin
+        triangle(-0.16, 0, -0.26, 0.1, -0.26, -0.1, 252, 218, 0)
+        #lower fin
+        triangle_gradient(0.01, -0.13, 0.1, -0.08, 0.09, -0.05, 252, 218, 0, 67, 98, 154)
+        #body
+        quad_bezier_curve(-0.2, 0, 0.05, 0.2, 0.2, 0, 86, 112, 181, True)
+        quad_bezier_curve(-0.2, 0, 0.05, -0.2, 0.2, 0.01, 86, 112, 181, True)
+        #side fin
+        triangle_gradient(0.02, 0.02, 0.1, -0.02, 0.09, -0.05, 252, 218, 0, 67, 98, 154)
+        #eye
+        circle(0.11, 0.04, 0.01, 180, 0, 0, 0)
+
         glPopMatrix()
 
 
@@ -137,9 +221,10 @@ def main():
         #background
         rectangle_gradient(-2, -0.7, 2, 1, 23, 20, 188, 65, 142, 188)
         rectangle_gradient(-2, -1, 2, -0.7, 187, 134, 23, 240, 180, 58)
-
+        
         shark(0, 0)
         fish(0.4, 0.8, 255, 0, 0, 0.6, True)
+        tropical_fish(-0.8, 0.5, 0.7)
         
         pg.display.flip()
         pg.time.wait(10)
