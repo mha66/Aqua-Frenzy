@@ -125,7 +125,9 @@ def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=False):
     glEnd()
 
 
-def fish(x, y, r, g, b, size=1.0, reverse=False):
+def basic_fish(x, y, size=1.0, reverse=False):
+        fin_color = (183, 52, 34)
+        body_color = (255, 111, 28)
         glPushMatrix()
         glScalef(size, size, 0)
         glTranslatef(x, y, 0)
@@ -133,17 +135,17 @@ def fish(x, y, r, g, b, size=1.0, reverse=False):
             glRotatef(180, 0, 1, 0)
 
         #tail fins
-        triangle(-0.376, 0.189, -0.333, -0.023, -0.235, -0.023, r, g, b)
-        triangle(-0.376, -0.234, -0.333, -0.023, -0.235, -0.023, r, g, b)
-        #body
-        ellipse(0.05, -0.038, 0.333, 0.16, 180, r, g , b)
-        circle(0.25, 0.02, 0.02, 180, 0, 0, 0)
+        triangle(-0.376, 0.189, -0.333, -0.023, -0.235, -0.023, *fin_color)
+        triangle(-0.376, -0.234, -0.333, -0.023, -0.235, -0.023, *fin_color)
         #lower fins
-        triangle(0.08, -0.325, 0.1, -0.19, 0.214, -0.15, r, g, b)
-        triangle(-0.21, -0.24, -0.2, -0.13, -0.1, -0.15, r, g, b)
+        triangle(0.08, -0.325, 0.1, -0.19, 0.214, -0.15, *fin_color)
+        triangle(-0.21, -0.24, -0.2, -0.13, -0.1, -0.15, *fin_color)
         #upper fins
-        triangle(0.1, 0.25, -0.05, 0.1, 0.15, 0.1, r, g, b)
-        triangle(-0.09, 0.2, -0.1, 0.1, 0.1, 0.1, r, g, b)
+        triangle(0.1, 0.25, -0.05, 0.1, 0.15, 0.1, *fin_color)
+        triangle(-0.09, 0.2, -0.1, 0.1, 0.1, 0.1, *fin_color)
+        #body
+        ellipse(0.05, -0.038, 0.333, 0.16, 180, *body_color)
+        circle(0.25, 0.02, 0.02, 180, 0, 0, 0)
 
         glPopMatrix()
 
@@ -223,7 +225,7 @@ def main():
         rectangle_gradient(-2, -1, 2, -0.7, 187, 134, 23, 240, 180, 58)
         
         shark(0, 0)
-        fish(0.4, 0.8, 255, 0, 0, 0.6, True)
+        basic_fish(0.4, 0.8, 0.6, True)
         tropical_fish(-0.8, 0.5, 0.7)
         
         pg.display.flip()
