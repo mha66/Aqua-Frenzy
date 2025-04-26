@@ -78,14 +78,15 @@ def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=False):
     glColor3f(r/255, g/255, b/255)
     t=0
     while t <= 1:
-        xA = (1-t)*x1 + t*x2
-        yA = (1-t)*y1 + t*y2
+        s = 1-t
+        xA = s*x1 + t*x2
+        yA = s*y1 + t*y2
         
-        xB = (1-t)*x2 + t*x3
-        yB = (1-t)*y2 + t*y3
+        xB = s*x2 + t*x3
+        yB = s*y2 + t*y3
 
-        xP = (1-t)*xA + t*xB
-        yP = (1-t)*yA + t*yB
+        xP = s*xA + t*xB
+        yP = s*yA + t*yB
     
         glVertex2f(xP, yP)
         t += 0.01
@@ -101,23 +102,24 @@ def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=False):
     glColor3f(r/255, g/255, b/255)
     t=0
     while t <= 1:
-        xA = (1-t)*x1 + t*x2
-        yA = (1-t)*y1 + t*y2
+        s = 1-t
+        xA = s*x1 + t*x2
+        yA = s*y1 + t*y2
         
-        xB = (1-t)*x2 + t*x3
-        yB = (1-t)*y2 + t*y3
+        xB = s*x2 + t*x3
+        yB = s*y2 + t*y3
 
-        xC = (1-t)*x3 + t*x4
-        yC = (1-t)*y3 + t*y4
+        xC = s*x3 + t*x4
+        yC = s*y3 + t*y4
 
-        xP = (1-t)*xA + t*xB
-        yP = (1-t)*yA + t*yB
+        xP = s*xA + t*xB
+        yP = s*yA + t*yB
 
-        xQ = (1-t)*xB + t*xC
-        yQ = (1-t)*yB + t*yC
+        xQ = s*xB + t*xC
+        yQ = s*yB + t*yC
 
-        xR = (1-t)*xP + t*xQ
-        yR = (1-t)*yP + t*yQ
+        xR = s*xP + t*xQ
+        yR = s*yP + t*yQ
     
         glVertex2f(xR, yR)
         t += 0.01
