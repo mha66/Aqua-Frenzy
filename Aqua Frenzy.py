@@ -5,7 +5,6 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from pygame.locals import *
 
-#(2/size)*x - 1
 
 def triangle(x1, y1, x2, y2, x3, y3, r, g, b):
     glBegin(GL_TRIANGLES)
@@ -37,9 +36,13 @@ def rectangle_gradient(x1, y1, x2, y2, r1, g1, b1, r2, g2, b2):
     glEnd()
 
 
-def circle(xc, yc, radius, num_segments, r, g, b):
-    glBegin(GL_TRIANGLE_FAN)
-    glColor3f(r/255, g/255, b/255)
+def circle(xc, yc, radius, num_segments, r, g, b, a=1, fill=True):
+    if fill:
+        glBegin(GL_TRIANGLE_FAN)
+    else:
+        glBegin(GL_LINE_LOOP)
+
+    glColor4f(r/255, g/255, b/255, a)
     for i in range(num_segments):
         angle = 2*mm.pi*i/num_segments
         x = xc + radius * mm.cos(angle)
@@ -47,8 +50,12 @@ def circle(xc, yc, radius, num_segments, r, g, b):
         glVertex2f(x, y)
     glEnd()
 
-def ellipse(xc, yc, radius_x, radius_y, num_segments, r, g, b):
-    glBegin(GL_TRIANGLE_FAN)
+def ellipse(xc, yc, radius_x, radius_y, num_segments, r, g, b, fill=True):
+    if fill:
+        glBegin(GL_TRIANGLE_FAN)
+    else:
+        glBegin(GL_LINE_LOOP)
+
     glColor3f(r/255, g/255, b/255)
     for i in range(num_segments):
         angle = 2*mm.pi*i/num_segments
@@ -69,7 +76,7 @@ def ellipse_gradient(xc, yc, radius_x, radius_y, num_segments, r1, g1, b1, r2, g
         glVertex2f(x, y)
     glEnd()
 
-def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=False):
+def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=True):
     if fill:
         glBegin(GL_POLYGON)
     else:
@@ -93,7 +100,7 @@ def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=False):
 
     glEnd()
 
-def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=False):
+def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=True):
     if fill:
         glBegin(GL_POLYGON)
     else:
@@ -126,6 +133,15 @@ def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=False):
 
     glEnd()
 
+
+def bubble(x, y, radius):
+    glPushMatrix()
+    glTranslatef(x, y, 0)
+    circle(0, 0, radius, 180, 180, 180, 200, 0.3)
+    circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
+    circle(0, 0, radius, 180, 180, 180, 200, 1, False)
+    glPopMatrix()
+    
 
 def basic_fish(x, y, size=1.0, reverse=False):
         fin_color = (183, 52, 34)
@@ -185,15 +201,15 @@ def tropical_fish(x, y, size=1.0, reverse=False):
             glRotatef(180, 0, 1, 0)
 
         #outer fins
-        cubic_bezier_curve(-0.2, 0.02, -0.12, 0.16, 0.08, 0.16, 0.2, 0, 252, 218, 0, True)
-        cubic_bezier_curve(-0.2, -0.02, -0.12, -0.16, 0.08, -0.16, 0, 0, 252, 218, 0, True)
+        cubic_bezier_curve(-0.2, 0.02, -0.12, 0.16, 0.08, 0.16, 0.2, 0, 252, 218, 0)
+        cubic_bezier_curve(-0.2, -0.02, -0.12, -0.16, 0.08, -0.16, 0, 0, 252, 218, 0)
         #tail fin
         triangle(-0.16, 0, -0.26, 0.1, -0.26, -0.1, 252, 218, 0)
         #lower fin
         triangle_gradient(0.01, -0.13, 0.1, -0.08, 0.09, -0.05, 252, 218, 0, 67, 98, 154)
         #body
-        quad_bezier_curve(-0.2, 0, 0.05, 0.2, 0.2, 0, 86, 112, 181, True)
-        quad_bezier_curve(-0.2, 0, 0.05, -0.2, 0.2, 0.01, 86, 112, 181, True)
+        quad_bezier_curve(-0.2, 0, 0.05, 0.2, 0.2, 0, 86, 112, 181)
+        quad_bezier_curve(-0.2, 0, 0.05, -0.2, 0.2, 0.01, 86, 112, 181)
         #side fin
         triangle_gradient(0.02, 0.02, 0.1, -0.02, 0.09, -0.05, 252, 218, 0, 67, 98, 154)
         #eye
@@ -213,6 +229,9 @@ def main():
 
     #glOrtho(-1, 1, -1, 1, -1, 1)
     glDisable(GL_DEPTH_TEST)  #remove this
+
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     
     while True:
         for event in pg.event.get():
@@ -229,7 +248,9 @@ def main():
         shark(0, 0)
         basic_fish(0.4, 0.8, 0.6, True)
         tropical_fish(-0.8, 0.5, 0.7)
-        
+
+        bubble(-1.2, 0, 0.05)
+
         pg.display.flip()
         pg.time.wait(10)
 
