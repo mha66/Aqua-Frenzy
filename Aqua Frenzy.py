@@ -141,7 +141,7 @@ def bubble(x, y, radius):
     circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
     circle(0, 0, radius, 180, 180, 180, 200, 1, False)
     glPopMatrix()
-    
+
 
 def basic_fish(x, y, size=1.0, reverse=False):
         fin_color = (183, 52, 34)
@@ -251,6 +251,40 @@ def draw_text(texture_id, x, y, width, height):
 
     glDisable(GL_TEXTURE_2D)
 
+
+def create_texture(filename):
+    text_surface = pg.image.load(filename)
+    text_data = pg.image.tostring(text_surface, "RGBA", True)
+    width = text_surface.get_width()
+    height = text_surface.get_height()
+
+    texture_id = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, texture_id)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, text_data)
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
+    return texture_id, width, height
+
+def draw_texture(texture_id, x, y, width, height):
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D, texture_id)
+
+    glBegin(GL_QUADS)
+    glTexCoord2f(0, 0)
+    glVertex2f(x, y)
+    glTexCoord2f(1, 0)
+    glVertex2f(x + width, y)
+    glTexCoord2f(1, 1)
+    glVertex2f(x + width, y + height)
+    glTexCoord2f(0, 1)
+    glVertex2f(x, y + height)
+    glEnd()
+
+    glDisable(GL_TEXTURE_2D)
+
 def main():
     pg.init()
     pg.font.init()
@@ -268,6 +302,7 @@ def main():
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     text_texture, text_width, text_height = create_text_texture("Score: 123")
+    texture, width, height = create_texture("assets/background.png")
     
     while True:
         for event in pg.event.get():
@@ -278,14 +313,16 @@ def main():
         glClear(GL_COLOR_BUFFER_BIT)
 
         #background
-        rectangle_gradient(-2, -0.7, 2, 1, 23, 20, 188, 65, 142, 188)
-        rectangle_gradient(-2, -1, 2, -0.7, 187, 134, 23, 240, 180, 58)
+        draw_texture(texture, -1.6, -1, 3.5, 2)
+        #rectangle_gradient(-2, -0.7, 2, 1, 23, 20, 188, 65, 142, 188)
+        #rectangle_gradient(-2, -1, 2, -0.7, 187, 134, 23, 240, 180, 58)
         
         shark(0, 0)
         basic_fish(0.4, 0.8, 0.6, True)
         tropical_fish(-0.8, 0.5, 0.7)
 
         bubble(-1.2, 0, 0.05)
+        
         draw_text(text_texture, -1.55, 0.9, 0.4, 0.1)
 
         pg.display.flip()
