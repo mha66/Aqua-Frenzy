@@ -217,56 +217,29 @@ def tropical_fish(x, y, size=1.0, reverse=False):
 
         glPopMatrix()
 
+def convert_image_to_texture(image):
+    texture_data = pg.image.tostring(image, "RGBA", True)
+    width = image.get_width()
+    height = image.get_height()
+
+    texture_id = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, texture_id)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, texture_data)
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
+    return texture_id, width, height
+
 def create_text_texture(text, font_size=32, color=(255, 255, 255)):
     font = pg.font.SysFont('Arial', font_size)
     text_surface = font.render(text, True, color)
-    text_data = pg.image.tostring(text_surface, "RGBA", True)
-    width = text_surface.get_width()
-    height = text_surface.get_height()
-
-    texture_id = glGenTextures(1)
-    glBindTexture(GL_TEXTURE_2D, texture_id)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, text_data)
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-
-    return texture_id, width, height
-
-def draw_text(texture_id, x, y, width, height):
-    glEnable(GL_TEXTURE_2D)
-    glBindTexture(GL_TEXTURE_2D, texture_id)
-
-    glBegin(GL_QUADS)
-    glTexCoord2f(0, 0)
-    glVertex2f(x, y)
-    glTexCoord2f(1, 0)
-    glVertex2f(x + width, y)
-    glTexCoord2f(1, 1)
-    glVertex2f(x + width, y + height)
-    glTexCoord2f(0, 1)
-    glVertex2f(x, y + height)
-    glEnd()
-
-    glDisable(GL_TEXTURE_2D)
-
+    return convert_image_to_texture(text_surface)
 
 def create_texture(filename):
-    text_surface = pg.image.load(filename)
-    text_data = pg.image.tostring(text_surface, "RGBA", True)
-    width = text_surface.get_width()
-    height = text_surface.get_height()
-
-    texture_id = glGenTextures(1)
-    glBindTexture(GL_TEXTURE_2D, texture_id)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, text_data)
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-
-    return texture_id, width, height
+    texture_surface = pg.image.load(filename)
+    return convert_image_to_texture(texture_surface)
 
 def draw_texture(texture_id, x, y, width, height):
     glEnable(GL_TEXTURE_2D)
@@ -301,8 +274,8 @@ def main():
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-    text_texture, text_width, text_height = create_text_texture("Score: 123")
-    texture, width, height = create_texture("assets/background.png")
+    text_texture, text_width, text_height = create_text_texture("Score: 123", 64)
+    texture, width, height = create_texture("assets/background.jpeg")
     
     while True:
         for event in pg.event.get():
@@ -322,8 +295,8 @@ def main():
         tropical_fish(-0.8, 0.5, 0.7)
 
         bubble(-1.2, 0, 0.05)
-        
-        draw_text(text_texture, -1.55, 0.9, 0.4, 0.1)
+
+        draw_texture(text_texture, -1.55, 0.9, 0.4, 0.1)
 
         pg.display.flip()
         pg.time.wait(10)
