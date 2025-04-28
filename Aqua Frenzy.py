@@ -134,15 +134,6 @@ def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=True):
     glEnd()
 
 
-def bubble(x, y, radius):
-    glPushMatrix()
-    glTranslatef(x, y, 0)
-    circle(0, 0, radius, 180, 180, 180, 200, 0.3)
-    circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
-    circle(0, 0, radius, 180, 180, 180, 200, 1, False)
-    glPopMatrix()
-
-
 def basic_fish(x, y, size=1.0, reverse=False):
         fin_color = (183, 52, 34)
         body_color = (255, 111, 28)
@@ -217,6 +208,31 @@ def tropical_fish(x, y, size=1.0, reverse=False):
 
         glPopMatrix()
 
+def bubble(x, y, radius=0.05):
+    glPushMatrix()
+    glTranslatef(x, y, 0)
+    circle(0, 0, radius, 180, 180, 180, 200, 0.3)
+    circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
+    circle(0, 0, radius, 180, 180, 180, 200, 1, False)
+    glPopMatrix()
+
+def star(x, y, size=1.0):
+    glPushMatrix()
+    glScalef(size, size, 0)
+    glTranslatef(x, y, 0)
+    #base (sides)
+    triangle(-0.07, 0.02, 0.07, 0.02, 0, -0.03, 255, 215, 0)
+    #upper
+    triangle(-0.02, 0.02, 0.02, 0.02, 0, 0.07, 255, 215, 0)
+    #bottom left
+    triangle(-0.03, 0, 0, -0.03, -0.04, -0.06, 255, 215, 0)
+    #bottom right
+    triangle(0.03, 0, 0, -0.03, 0.04, -0.06, 255, 215, 0)
+    #bubble
+    circle(0, 0, 0.08, 180, 180, 180, 200, 0.3)
+    circle(0, 0, 0.08, 180, 180, 180, 200, 1, False)
+    glPopMatrix()
+
 def convert_image_to_texture(image):
     texture_data = pg.image.tostring(image, "RGBA", True)
     width = image.get_width()
@@ -244,6 +260,7 @@ def create_texture(filename):
 def draw_texture(texture_id, x, y, width, height):
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, texture_id)
+    glColor3f(1, 1, 1) #to ensure texture color is not affected by previous glColor3f() calls
 
     glBegin(GL_QUADS)
     glTexCoord2f(0, 0)
@@ -260,8 +277,7 @@ def draw_texture(texture_id, x, y, width, height):
 
 def main():
     pg.init()
-    pg.font.init()
-
+  
     display = (1600,1000)
     pg.display.set_mode(display, DOUBLEBUF|OPENGL)
 
@@ -293,8 +309,9 @@ def main():
         shark(0, 0)
         basic_fish(0.4, 0.8, 0.6, True)
         tropical_fish(-0.8, 0.5, 0.7)
-
+    
         bubble(-1.2, 0, 0.05)
+        star(-1.1, -0.4)
 
         draw_texture(text_texture, -1.55, 0.9, 0.4, 0.1)
 
