@@ -78,10 +78,10 @@ def ellipse_gradient(xc, yc, radius_x, radius_y, num_segments, r1, g1, b1, r2, g
 
 def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=True):
     if fill:
-        glBegin(GL_POLYGON)
+        glBegin(GL_TRIANGLE_FAN)
     else:
-        glBegin(GL_LINE_STRIP)    
-
+        glBegin(GL_LINE_STRIP)   
+    
     glColor3f(r/255, g/255, b/255)
     t=0
     while t <= 1:
@@ -97,6 +97,48 @@ def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=True):
     
         glVertex2f(xP, yP)
         t += 0.01
+
+    glEnd()
+
+def quad_bezier_shape(x1, y1, x2, y2, x3, y3, r, g, b, x_offset, y_offset, x_center, y_center, fill=True):
+    glColor3f(r/255, g/255, b/255)
+    if fill:
+        glBegin(GL_TRIANGLE_FAN)
+        glVertex2f(x_center, y_center)
+    else:
+        glBegin(GL_LINE_STRIP)   
+    
+    t=0
+    while t <= 1:
+        s = 1-t
+        xA = s*x1 + t*x2
+        yA = s*y1 + t*y2
+        
+        xB = s*x2 + t*x3
+        yB = s*y2 + t*y3
+
+        xP = s*xA + t*xB
+        yP = s*yA + t*yB
+    
+        glVertex2f(xP, yP)
+        t += 0.01
+
+    x2 += x_offset
+    y2 += y_offset
+    t=1
+    while t >= 0:
+        s = 1-t
+        xA = s*x1 + t*x2
+        yA = s*y1 + t*y2
+        
+        xB = s*x2 + t*x3
+        yB = s*y2 + t*y3
+
+        xP = s*xA + t*xB
+        yP = s*yA + t*yB
+    
+        glVertex2f(xP, yP)
+        t -= 0.01
 
     glEnd()
 
@@ -312,6 +354,10 @@ def main():
     
         bubble(-1.2, 0, 0.05)
         star(-1.1, -0.4)
+        
+        #quad_bezier_shape(0, 0, 0.2, -0.4, 0.4, 0.4, 0, 0, 0, 0.1, 0.4, 0.25, 0)
+
+
 
         draw_texture(text_texture, -1.55, 0.9, 0.4, 0.1)
 
