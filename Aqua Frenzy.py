@@ -24,6 +24,15 @@ def triangle_gradient(x1, y1, x2, y2, x3, y3, r1, g1, b1, r2, g2, b2):
     glEnd()
 
 
+def rectangle(x1, y1, x2, y2, r, g, b):
+    glBegin(GL_QUADS)
+    glColor3f(r/255, g/255, b/255)
+    glVertex2f(x1, y1)
+    glVertex2f(x1, y2)
+    glVertex2f(x2, y2)
+    glVertex2f(x2, y1)
+    glEnd()
+
 def rectangle_gradient(x1, y1, x2, y2, r1, g1, b1, r2, g2, b2):
     glBegin(GL_QUADS)
     glColor3f(r1/255, g1/255, b1/255)
@@ -100,7 +109,7 @@ def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=True):
 
     glEnd()
 
-def quad_bezier_shape(x1, y1, x2, y2, x3, y3, r, g, b, x_offset, y_offset, x_center, y_center, fill=True):
+def quad_bezier_shape(x1, y1, x2, y2, x3, y3, r, g, b, x_offset, y_offset, x_center=0, y_center=0, fill=True):
     glColor3f(r/255, g/255, b/255)
     if fill:
         glBegin(GL_TRIANGLE_FAN)
@@ -139,7 +148,7 @@ def quad_bezier_shape(x1, y1, x2, y2, x3, y3, r, g, b, x_offset, y_offset, x_cen
     
         glVertex2f(xP, yP)
         t -= 0.01
-
+    glVertex2f(xA, yA)
     glEnd()
 
 def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=True):
@@ -180,8 +189,8 @@ def basic_fish(x, y, size=1.0, reverse=False):
     fin_color = (183, 52, 34)
     body_color = (255, 111, 28)
     glPushMatrix()
-    glScalef(size, size, 0)
     glTranslatef(x, y, 0)
+    glScalef(size, size, 0)
     if reverse:
         glRotatef(180, 0, 1, 0)
 
@@ -204,8 +213,8 @@ def shark(x, y, size=1.0, reverse=False):
     upper_color = (151, 156, 168)
     lower_color = (180, 186, 191)
     glPushMatrix()
-    glScalef(size, size, 0)
     glTranslatef(x, y, 0)
+    glScalef(size, size, 0)
     if reverse:
         glRotatef(180, 0, 1, 0)
 
@@ -228,8 +237,8 @@ def shark(x, y, size=1.0, reverse=False):
 
 def tropical_fish(x, y, size=1.0, reverse=False):
     glPushMatrix()
-    glScalef(size, size, 0)
     glTranslatef(x, y, 0)
+    glScalef(size, size, 0)
     if reverse:
         glRotatef(180, 0, 1, 0)
 
@@ -247,6 +256,53 @@ def tropical_fish(x, y, size=1.0, reverse=False):
     triangle_gradient(0.02, 0.02, 0.1, -0.02, 0.09, -0.05, 252, 218, 0, 67, 98, 154)
     #eye
     circle(0.11, 0.04, 0.01, 180, 0, 0, 0)
+
+    glPopMatrix()
+
+def clown_fish(x, y, size=1.0, reverse=False):
+    glPushMatrix()
+    glTranslatef(x, y, 0)
+    glScalef(size, size, 0)
+    if reverse:
+        glRotatef(180, 0, 1, 0)
+        
+    #fins
+    #upper
+    quad_bezier_curve(-0.15, 0.1, 0.03, 0.27, 0.1, 0.07, 244, 89, 48)
+    cubic_bezier_curve(-0.35, 0, -0.3, 0.18, -0.16, 0.22, -0.05, 0.1, 244, 89, 48)
+
+    #lower
+    cubic_bezier_curve(-0.35, 0, -0.3, -0.15, -0.16, -0.2, -0.1, -0.1, 244, 89, 48)
+    quad_bezier_curve(-0.03, -0.07, -0.05, -0.26, 0.08, -0.09, 244, 89, 48)
+
+    #tail
+    cubic_bezier_curve(-0.5, 0, -0.49, 0.1, -0.47, 0.15, -0.35, 0, 244, 89, 48)
+    cubic_bezier_curve(-0.5, 0, -0.49, -0.1, -0.47, -0.15, -0.35, 0.02, 244, 89, 48)
+
+    #body
+    cubic_bezier_curve(-0.4, 0, -0.2, 0.1, -0, 0.25, 0.2, 0, 242, 111, 51)
+    cubic_bezier_curve(-0.4, 0, -0.2, -0.1, -0, -0.25, 0.2, 0.02, 242, 111, 51)
+
+    #eye
+    circle(0.13, 0.03, 0.017, 180, 255, 255, 255)
+    circle(0.13, 0.03, 0.013, 180, 0, 0, 0)
+
+    #stripes
+    #right
+    quad_bezier_shape(0.07, 0.11, 0.05, 0, 0.07, -0.1, 255, 255, 255, -0.1, 0.03, 0.052, 0)
+    quad_bezier_shape(0.07, 0.11, 0.05, 0, 0.07, -0.1, 0, 0, 0, -0.1, 0.03, fill=False)
+    
+    #center
+    quad_bezier_curve(-0.09, 0.135, -0.19, 0, -0.09, -0.13, 255, 255, 255)
+    quad_bezier_curve(-0.09, 0.135, -0.19, 0, -0.09, -0.13, 0, 0, 0, fill=False)
+    quad_bezier_curve(-0.09, 0.135, 0.01, 0, -0.095, -0.13, 255, 255, 255)
+    quad_bezier_curve(-0.09, 0.135, 0.01, 0, -0.095, -0.13, 0, 0, 0, fill=False)
+
+    #left
+    quad_bezier_curve(-0.3, 0.055, -0.35, 0, -0.3, -0.05, 255, 255, 255)
+    quad_bezier_curve(-0.3, 0.055, -0.35, 0, -0.3, -0.05, 0, 0, 0, fill=False)
+    quad_bezier_curve(-0.3, 0.055, -0.2, 0, -0.305, -0.05, 255, 255, 255)
+    quad_bezier_curve(-0.3, 0.055, -0.2, 0, -0.305, -0.05, 0, 0, 0, fill=False)
 
     glPopMatrix()
 
@@ -349,20 +405,33 @@ def main():
         #rectangle_gradient(-2, -1, 2, -0.7, 187, 134, 23, 240, 180, 58)
         
         shark(0, 0)
-        basic_fish(0.4, 0.8, 0.6, True)
-        tropical_fish(-0.8, 0.5, 0.7)
-    
+        basic_fish(0.4, 0.7, 0.6, True)
+        tropical_fish(-0.6, 0.3, 0.7)
+        clown_fish(-0.9, 0.7, 0.8)
+
         bubble(-1.2, 0, 0.05)
         star(-1.1, -0.4)
         
         #quad_bezier_shape(0, 0, 0.2, -0.4, 0.4, 0.4, 0, 0, 0, 0.1, 0.4, 0.25, 0)
+        
+        #cubic_bezier_curve(-0.4, 0, -0.1, -0.1, 0.15, -0.3, 0.3, 0.02, 0, 0, 0)
 
-
+        # cubic_bezier_curve(-0.4, 0, -0.2, 0.15, 0, 0.3, 0.1, 0, 0, 0, 0)
+        # triangle(0, 0, 0, 0.155, 0.3, 0, 0, 0, 0)
 
         draw_texture(text_texture, -1.55, 0.9, 0.4, 0.1)
 
         pg.display.flip()
         pg.time.wait(10)
 
-
 main()
+
+#  cubic_bezier_curve(-0.4, 0, -0.1, 0.1, 0.15, 0.3, 0.3, 0, 0, 0, 0)
+#  cubic_bezier_curve(-0.4, 0, -0.1, -0.1, 0.15, -0.3, 0.3, 0.02, 0, 0, 0)
+
+
+# glPushMatrix()
+# glTranslatef(-0.35, 0, 0)
+# glRotatef(180, 0, 1, 0)
+# quad_bezier_shape(-0.05, 0.05, -0.1, 0, -0.05, -0.04, 255, 255, 255, -0.06, 0.03, -0.176, 0)
+# glPopMatrix()
