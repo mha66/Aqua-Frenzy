@@ -5,6 +5,13 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from pygame.locals import *
 
+def line(x1, y1, x2, y2, r, g, b):
+    #glLineWidth()
+    glBegin(GL_LINES)
+    glColor3f(r/255, g/255, b/255)
+    glVertex2f(x1, y1)
+    glVertex2f(x2, y2)
+    glEnd()
 
 def triangle(x1, y1, x2, y2, x3, y3, r, g, b):
     glBegin(GL_TRIANGLES)
@@ -205,7 +212,13 @@ def basic_fish(x, y, size=1.0, reverse=False):
     triangle(-0.09, 0.2, -0.1, 0.1, 0.1, 0.1, *fin_color)
     #body
     ellipse(0.05, -0.038, 0.333, 0.16, 180, *body_color)
+    #gills
+    quad_bezier_curve(0.19, 0.07, 0.12, 0, 0.19, -0.12, *fin_color, fill=False)
+    #eye
+    circle(0.25, 0.02, 0.03, 180, 255, 255, 255)
     circle(0.25, 0.02, 0.02, 180, 0, 0, 0)
+    #mouth
+    line(0.3, -0.05, 0.38, -0.05, *fin_color)
 
     glPopMatrix()
 
@@ -220,16 +233,22 @@ def shark(x, y, size=1.0, reverse=False):
 
     #snout
     triangle(-0.4, 0.08, -0.4, -0.08, -0.55, 0.02, *upper_color)
-    #tail fins
+    #tail
     triangle(0.46, 0, 0.9, 0.4, 0.65, 0, *upper_color)
     triangle(0.46, 0, 0.7, -0.35, 0.65, 0, *upper_color)
-    #upper fin
+    #upper fins
     triangle(-0.35, -0.04, 0.1, -0.04, 0, 0.35, *upper_color)
+    triangle(0.23, -0.02, 0.37, -0.02, 0.34, 0.15, *upper_color)
     #lower fins
     triangle(0.15, -0.1, 0.32, -0.1, 0.3, -0.17, *lower_color)
     triangle(-0.25, -0.1, 0, -0.1, 0.05, -0.2, *lower_color)
     #body
     ellipse_gradient(0, 0, 0.5, 0.13, 180, *upper_color, *lower_color, 0.55)
+    #gills
+    for i in range(4):
+        x1 = -0.28 + i*0.02
+        x2 = -0.25 + i*0.02
+        quad_bezier_curve(x1, 0.07, x2, 0, x1, -0.07, 0, 0, 0, fill=False)
     #eye
     circle(-0.4, 0.03, 0.015, 180, 0, 0, 0)
 
@@ -255,6 +274,7 @@ def tropical_fish(x, y, size=1.0, reverse=False):
     #side fin
     triangle_gradient(0.02, 0.02, 0.1, -0.02, 0.09, -0.05, 252, 218, 0, 67, 98, 154)
     #eye
+    circle(0.11, 0.04, 0.015, 180, 255, 255, 255)
     circle(0.11, 0.04, 0.01, 180, 0, 0, 0)
 
     glPopMatrix()
