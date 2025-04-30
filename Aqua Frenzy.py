@@ -311,7 +311,7 @@ def bubble(x, y, radius=0.05):
     glTranslatef(x, y, 0)
     circle(0, 0, radius, 180, 180, 180, 200, 0.3)
     circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
-    circle(0, 0, radius, 180, 180, 180, 200, 1, False)
+    circle(0, 0, radius, 180, 180, 180, 200, 1, fill=False)
     glPopMatrix()
 
 def star(x, y, size=1.0):
@@ -328,7 +328,7 @@ def star(x, y, size=1.0):
     triangle(0.03, 0, 0, -0.03, 0.04, -0.06, 255, 215, 0)
     #bubble
     circle(0, 0, 0.08, 180, 180, 180, 200, 0.3)
-    circle(0, 0, 0.08, 180, 180, 180, 200, 1, False)
+    circle(0, 0, 0.08, 180, 180, 180, 200, 1, fill=False)
     glPopMatrix()
 
 def convert_image_to_texture(image):
@@ -388,7 +388,8 @@ def main():
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-    text_texture, text_width, text_height = create_text_texture("Score: 123", 64)
+    score_texture, score_width, score_height = create_text_texture("Score: 123", 64)
+    hp_texture, hp_width, hp_height = create_text_texture("Lives: 3", 64)
     texture, width, height = create_texture("assets/background.jpeg")
     
     while True:
@@ -412,26 +413,11 @@ def main():
         bubble(-1.2, 0, 0.05)
         star(-1.1, -0.4)
         
-        #quad_bezier_shape(0, 0, 0.2, -0.4, 0.4, 0.4, 0, 0, 0, 0.1, 0.4, 0.25, 0)
-        
-        #cubic_bezier_curve(-0.4, 0, -0.1, -0.1, 0.15, -0.3, 0.3, 0.02, 0, 0, 0)
 
-        # cubic_bezier_curve(-0.4, 0, -0.2, 0.15, 0, 0.3, 0.1, 0, 0, 0, 0)
-        # triangle(0, 0, 0, 0.155, 0.3, 0, 0, 0, 0)
-
-        draw_texture(text_texture, -1.55, 0.9, 0.4, 0.1)
+        draw_texture(score_texture, -1.55, 0.9, 0.4, 0.1)
+        draw_texture(hp_texture, 1.2, 0.9, 0.3, 0.1)
 
         pg.display.flip()
         pg.time.wait(10)
 
 main()
-
-#  cubic_bezier_curve(-0.4, 0, -0.1, 0.1, 0.15, 0.3, 0.3, 0, 0, 0, 0)
-#  cubic_bezier_curve(-0.4, 0, -0.1, -0.1, 0.15, -0.3, 0.3, 0.02, 0, 0, 0)
-
-
-# glPushMatrix()
-# glTranslatef(-0.35, 0, 0)
-# glRotatef(180, 0, 1, 0)
-# quad_bezier_shape(-0.05, 0.05, -0.1, 0, -0.05, -0.04, 255, 255, 255, -0.06, 0.03, -0.176, 0)
-# glPopMatrix()
