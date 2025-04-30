@@ -311,13 +311,13 @@ def bubble(x, y, radius=0.05):
     glTranslatef(x, y, 0)
     circle(0, 0, radius, 180, 180, 180, 200, 0.3)
     circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
-    circle(0, 0, radius, 180, 180, 180, 200, 1, fill=False)
+    circle(0, 0, radius, 180, 180, 180, 200, fill=False)
     glPopMatrix()
 
 def star(x, y, size=1.0):
     glPushMatrix()
-    glScalef(size, size, 0)
     glTranslatef(x, y, 0)
+    glScalef(size, size, 0)
     #base (sides)
     triangle(-0.07, 0.02, 0.07, 0.02, 0, -0.03, 255, 215, 0)
     #upper
@@ -328,7 +328,21 @@ def star(x, y, size=1.0):
     triangle(0.03, 0, 0, -0.03, 0.04, -0.06, 255, 215, 0)
     #bubble
     circle(0, 0, 0.08, 180, 180, 180, 200, 0.3)
-    circle(0, 0, 0.08, 180, 180, 180, 200, 1, fill=False)
+    circle(0, 0, 0.08, 180, 180, 180, 200, fill=False)
+    glPopMatrix()
+
+def extra_life(x, y, size=1.0):
+    glPushMatrix()
+    glTranslatef(x, y, 0)
+    glScalef(size, size, 0)
+    #+
+    rectangle(-0.04, -0.03, -0.02, 0.03, 255, 215, 0)
+    rectangle(-0.06, -0.01, 0, 0.01, 255, 215, 0)
+    #1
+    rectangle(0.02, -0.03, 0.04, 0.04, 255, 215, 0)
+    #bubble
+    circle(0, 0, 0.08, 180, 180, 180, 200, 0.3)
+    circle(0, 0, 0.08, 180, 180, 180, 200, fill=False)
     glPopMatrix()
 
 def convert_image_to_texture(image):
@@ -399,7 +413,6 @@ def main():
                 return
         
         glClear(GL_COLOR_BUFFER_BIT)
-
         #background
         draw_texture(texture, -1.6, -1, 3.5, 2)
         #rectangle_gradient(-2, -0.7, 2, 1, 23, 20, 188, 65, 142, 188)
@@ -411,7 +424,8 @@ def main():
         clown_fish(-0.9, 0.7, 0.8)
 
         bubble(-1.2, 0, 0.05)
-        star(-1.1, -0.4)
+        star(-1.1, -0.3)
+        extra_life(-1.15, -0.6)
         
 
         draw_texture(score_texture, -1.55, 0.9, 0.4, 0.1)
