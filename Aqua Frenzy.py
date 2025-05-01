@@ -128,9 +128,11 @@ def ellipse_gradient(xc, yc, radius_x, radius_y, num_segments, r1, g1, b1, r2, g
         glVertex2f(x, y)
     glEnd()
 
-def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=True):
+def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=True, loop=False):
     if fill:
         glBegin(GL_TRIANGLE_FAN)
+    elif loop:
+        glBegin(GL_LINE_LOOP)
     else:
         glBegin(GL_LINE_STRIP)   
     
@@ -150,48 +152,6 @@ def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=True):
         glVertex2f(xP, yP)
         t += 0.01
 
-    glEnd()
-
-def quad_bezier_shape(x1, y1, x2, y2, x3, y3, r, g, b, x_offset, y_offset, x_center=0, y_center=0, fill=True):
-    glColor3f(r/255, g/255, b/255)
-    if fill:
-        glBegin(GL_TRIANGLE_FAN)
-        glVertex2f(x_center, y_center)
-    else:
-        glBegin(GL_LINE_STRIP)   
-    
-    t=0
-    while t <= 1:
-        s = 1-t
-        xA = s*x1 + t*x2
-        yA = s*y1 + t*y2
-        
-        xB = s*x2 + t*x3
-        yB = s*y2 + t*y3
-
-        xP = s*xA + t*xB
-        yP = s*yA + t*yB
-    
-        glVertex2f(xP, yP)
-        t += 0.01
-
-    x2 += x_offset
-    y2 += y_offset
-    t=1
-    while t >= 0:
-        s = 1-t
-        xA = s*x1 + t*x2
-        yA = s*y1 + t*y2
-        
-        xB = s*x2 + t*x3
-        yB = s*y2 + t*y3
-
-        xP = s*xA + t*xB
-        yP = s*yA + t*yB
-    
-        glVertex2f(xP, yP)
-        t -= 0.01
-    glVertex2f(xA, yA)
     glEnd()
 
 def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=True):
@@ -345,8 +305,8 @@ def clown_fish(x, y, size=1.0, reverse=False):
 
     #stripes
     #right
-    quad_bezier_shape(0.07, 0.11, 0.05, 0, 0.07, -0.1, 255, 255, 255, -0.1, 0.03, 0.052, 0)
-    quad_bezier_shape(0.07, 0.11, 0.05, 0, 0.07, -0.1, 0, 0, 0, -0.1, 0.03, fill=False)
+    quad_bezier_curve(0.07, 0.11, -0.05, 0, 0.07, -0.1, 255, 255, 255)
+    quad_bezier_curve(0.07, 0.11, -0.05, 0, 0.07, -0.1, 0, 0, 0, fill=False, loop=True)
     
     #center
     quad_bezier_curve(-0.09, 0.135, -0.19, 0, -0.09, -0.13, 255, 255, 255)
