@@ -365,47 +365,17 @@ def extra_life(x, y, size=1.0):
     circle(0, 0, 0.08, 180, 180, 180, 200, fill=False)
     glPopMatrix()
 
-def convert_image_to_texture(image):
-    texture_data = pg.image.tostring(image, "RGBA", True)
-    width = image.get_width()
-    height = image.get_height()
-
-    texture_id = glGenTextures(1)
-    glBindTexture(GL_TEXTURE_2D, texture_id)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, texture_data)
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-
-    return texture_id, width, height
-
-def create_text_texture(text, font_size=32, color=(255, 255, 255)):
+def draw_text(text, x, y, font_size=32, color=(255, 255, 255)):
     font = pg.font.SysFont('Arial', font_size)
     text_surface = font.render(text, True, color)
-    return convert_image_to_texture(text_surface)
+    text_data = pg.image.tostring(text_surface, "RGBA", True)
+    glRasterPos2d(x, y)
+    glDrawPixels(text_surface.get_width(), text_surface.get_height(), GL_RGBA, GL_UNSIGNED_BYTE, text_data)
 
-def create_texture(filename):
-    texture_surface = pg.image.load(filename)
-    return convert_image_to_texture(texture_surface)
-
-def draw_texture(texture_id, x, y, width, height):
-    glEnable(GL_TEXTURE_2D)
-    glBindTexture(GL_TEXTURE_2D, texture_id)
-    glColor3f(1, 1, 1) #to ensure texture color is not affected by previous glColor3f() calls
-
-    glBegin(GL_QUADS)
-    glTexCoord2f(0, 0)
-    glVertex2f(x, y)
-    glTexCoord2f(1, 0)
-    glVertex2f(x + width, y)
-    glTexCoord2f(1, 1)
-    glVertex2f(x + width, y + height)
-    glTexCoord2f(0, 1)
-    glVertex2f(x, y + height)
-    glEnd()
-
-    glDisable(GL_TEXTURE_2D)
+def draw_image(image_surface, x, y):
+    image_data = pg.image.tostring(image_surface, "RGBA", True)
+    glRasterPos2d(x, y)
+    glDrawPixels(image_surface.get_width(), image_surface.get_height(), GL_RGBA, GL_UNSIGNED_BYTE, image_data)
 
 def main():
     pg.init()
@@ -422,10 +392,8 @@ def main():
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-    score_texture, score_width, score_height = create_text_texture("Score: 123", 64)
-    hp_texture, hp_width, hp_height = create_text_texture("Lives: 3", 64)
-    texture, width, height = create_texture("assets/background.jpeg")
-    
+    background = pg.image.load("assets/background.jpeg")
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -434,7 +402,7 @@ def main():
         
         glClear(GL_COLOR_BUFFER_BIT)
         #background
-        draw_texture(texture, -1.6, -1, 3.5, 2)
+        draw_image(background, -1.6, -1)
         #rectangle_gradient(-2, -0.7, 2, 1, 23, 20, 188, 65, 142, 188)
         #rectangle_gradient(-2, -1, 2, -0.7, 187, 134, 23, 240, 180, 58)
         
@@ -446,10 +414,9 @@ def main():
         bubble(-1.2, 0, 0.05)
         star(-1.1, -0.3)
         extra_life(-1.15, -0.6)
-        
 
-        draw_texture(score_texture, -1.55, 0.9, 0.4, 0.1)
-        draw_texture(hp_texture, 1.2, 0.9, 0.3, 0.1)
+        draw_text("Score: 123", -1.55, 0.87, 50)
+        draw_text("Lives: 3", 1.25, 0.87, 50)
 
         pg.display.flip()
         pg.time.wait(10)
