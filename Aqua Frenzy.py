@@ -21,6 +21,14 @@ def triangle(x1, y1, x2, y2, x3, y3, r, g, b):
     glVertex2f(x3, y3)
     glEnd()
 
+def triangle_3D(x1, y1, z1, x2, y2, z2, x3, y3, z3, r, g, b):
+    glBegin(GL_TRIANGLES)
+    glColor3f(r/255, g/255, b/255)
+    glVertex3f(x1, y1, z1)
+    glVertex3f(x2, y2, z2)
+    glVertex3f(x3, y3, z3)
+    glEnd()
+
 def triangle_gradient(x1, y1, x2, y2, x3, y3, r1, g1, b1, r2, g2, b2):
     glBegin(GL_TRIANGLES)
     glColor3f(r1/255, g1/255, b1/255)
@@ -66,6 +74,20 @@ def circle(xc, yc, radius, num_segments, r, g, b, a=1, fill=True):
         glVertex2f(x, y)
     glEnd()
 
+def circle_3D(xc, yc, zc, radius, num_segments, r, g, b, a=1, fill=True):
+    if fill:
+        glBegin(GL_TRIANGLE_FAN)
+    else:
+        glBegin(GL_LINE_LOOP)
+
+    glColor4f(r/255, g/255, b/255, a)
+    for i in range(num_segments):
+        angle = 2*mm.pi*i/num_segments
+        x = xc + radius * mm.cos(angle)
+        y = yc + radius * mm.sin(angle)
+        glVertex3f(x, y, zc)
+    glEnd()
+
 def ellipse(xc, yc, radius_x, radius_y, num_segments, r, g, b, fill=True):
     if fill:
         glBegin(GL_TRIANGLE_FAN)
@@ -78,6 +100,20 @@ def ellipse(xc, yc, radius_x, radius_y, num_segments, r, g, b, fill=True):
         x = xc + radius_x * mm.cos(angle)
         y = yc + radius_y * mm.sin(angle)
         glVertex2f(x, y)
+    glEnd()
+
+def ellipse_3D(xc, yc, zc, radius_x, radius_y, num_segments, r, g, b, fill=True):
+    if fill:
+        glBegin(GL_TRIANGLE_FAN)
+    else:
+        glBegin(GL_LINE_LOOP)
+
+    glColor3f(r/255, g/255, b/255)
+    for i in range(num_segments):
+        angle = 2*mm.pi*i/num_segments
+        x = xc + radius_x * mm.cos(angle)
+        y = yc + radius_y * mm.sin(angle)
+        glVertex3f(x, y, zc)
     glEnd()
 
 def ellipse_gradient(xc, yc, radius_x, radius_y, num_segments, r1, g1, b1, r2, g2, b2, ratio = 0.5):
@@ -351,6 +387,74 @@ def star(x, y, size=1.0):
     circle(0, 0, 0.08, 180, 180, 180, 200, fill=False)
     glPopMatrix()
 
+def sphere(radius, slices, stacks, r, g, b, a, rotation):
+    glPushMatrix()
+    glRotatef(rotation, 0, 1, 0)
+    for i in range(slices):
+        glColor4f(r/255, g/255, b/255, a)
+        theta1 = i * mm.pi * 2 / slices
+        theta2 = (i + 1) * mm.pi * 2 / slices
+        glBegin(GL_QUAD_STRIP)
+        for j in range(stacks + 1):
+            phi = j * mm.pi / stacks
+            x1 = radius * mm.cos(theta1) * mm.sin(phi)
+            y1 = radius * mm.sin(theta1) * mm.sin(phi)
+            z1 = radius * mm.cos(phi)
+            x2 = radius * mm.cos(theta2) * mm.sin(phi)
+            y2 = radius * mm.sin(theta2) * mm.sin(phi)
+            z2 = radius * mm.cos(phi)
+            glVertex3f(x1, y1, z1)
+            glVertex3f(x2, y2, z2)
+        glEnd()
+    glPopMatrix()
+
+def star_3D(x, y, z=0, r=180, g=180, b=200, size=1.0, depth=0.02, angle=0):
+    glPushMatrix()
+    glTranslatef(x, y, z)
+    glScalef(size, size, 0)
+    glRotatef(angle, 0, 1, 0)
+
+    d = depth/2
+    #front
+    #base (sides)
+    triangle_3D(-0.07, 0.02, d, 0.07, 0.02, d, 0, -0.03, d, 255, 215, 0)
+    #upper
+    triangle_3D(-0.02, 0.02, d, 0.02, 0.02, d, 0, 0.07, d, 255, 215, 0)
+    #bottom left
+    triangle_3D(-0.03, 0, d, 0, -0.03, d, -0.04, -0.06, d, 255, 215, 0)
+    #bottom right
+    triangle_3D(0.03, 0, d, 0, -0.03, d, 0.04, -0.06, d, 255, 215, 0)
+
+    #back
+    #base (sides)
+    triangle_3D(-0.07, 0.02, -d, 0.07, 0.02, -d, 0, -0.03, -d, 255, 215, 0)
+    #upper
+    triangle_3D(-0.02, 0.02, -d, 0.02, 0.02, -d, 0, 0.07, -d, 255, 215, 0)
+    #bottom left
+    triangle_3D(-0.03, 0, -d, 0, -0.03, -d, -0.04, -0.06, -d, 255, 215, 0)
+    #bottom right
+    triangle_3D(0.03, 0, -d, 0, -0.03, -d, 0.04, -0.06, -d, 255, 215, 0)
+    
+    #sides
+    #right
+    glBegin(GL_QUADS)
+    glVertex3f(0, 0.07, d)
+    glVertex3f(0, 0.07, -d)
+    glVertex3f(0.04, -0.06, -d)
+    glVertex3f(0.04, -0.06, d)
+    glEnd()
+
+    #left
+    glBegin(GL_QUADS)
+    glVertex3f(0, 0.07, d)
+    glVertex3f(0, 0.07, -d)
+    glVertex3f(-0.04, -0.06, -d)
+    glVertex3f(-0.04, -0.06, d)
+    glEnd()
+
+    sphere(0.08, 20, 20, r, g, b, 0.3, angle)
+    glPopMatrix()
+
 def extra_life(x, y, size=1.0):
     glPushMatrix()
     glTranslatef(x, y, 0)
@@ -383,24 +487,30 @@ def main():
     display = (1600,1000)
     pg.display.set_mode(display, DOUBLEBUF|OPENGL)
 
-    #gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
-    #glTranslatef(0, 0, -2.4)
+    gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+    glTranslatef(0, 0, -2.415)
 
-    glOrtho(-1.6, 1.6, -1, 1, -1, 1)
-    glDisable(GL_DEPTH_TEST)  #remove this
-
+    # glOrtho(-1.6, 1.6, -1, 1, -1, 1)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-    background = pg.image.load("assets/background.jpeg")
+    glEnable(GL_DEPTH_TEST)  
+    glDepthFunc(GL_LEQUAL)
 
+    background = pg.image.load("assets/background.jpeg")
+    angle = 0
+    
+    colors = [170, 170, 200]
+    c_i = 1
+    increase = True
+    
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 return
         
-        glClear(GL_COLOR_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         #background
         draw_image(background, -1.6, -1)
         #rectangle_gradient(-2, -0.7, 2, 1, 23, 20, 188, 65, 142, 188)
@@ -415,8 +525,18 @@ def main():
         star(-1.1, -0.3)
         extra_life(-1.15, -0.6)
 
+        if (colors[c_i] == 170 and not increase) or (colors[c_i] == 200 and increase):
+            c_i = (c_i+1) % 3
+            increase = not increase
+        if increase:
+            colors[c_i] += 1
+        else:
+            colors[c_i] -= 1
+        star_3D(-1.4, -0.3, 0, *colors, angle=angle)
+
         draw_text("Score: 123", -1.55, 0.87, 50)
         draw_text("Lives: 3", 1.25, 0.87, 50)
+        angle += 1
 
         pg.display.flip()
         pg.time.wait(10)
