@@ -7,9 +7,7 @@ from OpenGL.GLU import *
 from pygame.locals import *
 
 
-def basic_fish(x, y, size=1.0, reverse=False):
-    fin_color = (183, 52, 34)
-    body_color = (255, 111, 28)
+def basic_fish(x, y, size=1.0, reverse=False, fin_color = (183, 52, 34), body_color = (255, 111, 28)):
     glPushMatrix()
     glTranslatef(x, y, 0)
     glScalef(size, size, 0)
@@ -69,7 +67,8 @@ def shark(x, y, size=1.0, reverse=False):
 
     glPopMatrix()
 
-def tropical_fish(x, y, size=1.0, reverse=False):
+def tropical_fish(x, y, size=1.0, reverse=False, fin_color = (252, 218, 0), body_color = (86, 112, 181), gradient_color = (67, 98, 154)):
+
     glPushMatrix()
     glTranslatef(x, y, 0)
     glScalef(size, size, 0)
@@ -77,17 +76,17 @@ def tropical_fish(x, y, size=1.0, reverse=False):
         glRotatef(180, 0, 1, 0)
 
     #outer fins
-    cubic_bezier_curve(-0.2, 0.02, -0.12, 0.16, 0.08, 0.16, 0.2, 0, 252, 218, 0)
-    cubic_bezier_curve(-0.2, -0.02, -0.12, -0.16, 0.08, -0.16, 0, 0, 252, 218, 0)
+    cubic_bezier_curve(-0.2, 0.02, -0.12, 0.16, 0.08, 0.16, 0.2, 0, *fin_color)
+    cubic_bezier_curve(-0.2, -0.02, -0.12, -0.16, 0.08, -0.16, 0, 0, *fin_color)
     #tail fin
-    triangle(-0.16, 0, -0.26, 0.1, -0.26, -0.1, 252, 218, 0)
+    triangle(-0.16, 0, -0.26, 0.1, -0.26, -0.1, *fin_color)
     #lower fin
-    triangle_gradient(0.01, -0.13, 0.1, -0.08, 0.09, -0.05, 252, 218, 0, 67, 98, 154)
+    triangle_gradient(0.01, -0.13, 0.1, -0.08, 0.09, -0.05, *fin_color, *gradient_color)
     #body
-    quad_bezier_curve(-0.2, 0, 0.05, 0.2, 0.2, 0, 86, 112, 181)
-    quad_bezier_curve(-0.2, 0, 0.05, -0.2, 0.2, 0.01, 86, 112, 181)
+    quad_bezier_curve(-0.2, 0, 0.05, 0.2, 0.2, 0, *body_color)
+    quad_bezier_curve(-0.2, 0, 0.05, -0.2, 0.2, 0.01, *body_color)
     #side fin
-    triangle_gradient(0.02, 0.02, 0.1, -0.02, 0.09, -0.05, 252, 218, 0, 67, 98, 154)
+    triangle_gradient(0.02, 0.02, 0.1, -0.02, 0.09, -0.05, *fin_color, *gradient_color)
     #eye
     circle(0.11, 0.04, 0.015, 180, 255, 255, 255)
     circle(0.11, 0.04, 0.01, 180, 0, 0, 0)
@@ -95,6 +94,8 @@ def tropical_fish(x, y, size=1.0, reverse=False):
     glPopMatrix()
 
 def clown_fish(x, y, size=1.0, reverse=False):
+    fin_color = (244, 89, 48)
+    body_color = (242, 111, 51)
     glPushMatrix()
     glTranslatef(x, y, 0)
     glScalef(size, size, 0)
@@ -103,20 +104,20 @@ def clown_fish(x, y, size=1.0, reverse=False):
         
     #fins
     #upper
-    quad_bezier_curve(-0.15, 0.1, 0.03, 0.27, 0.1, 0.07, 244, 89, 48)
-    cubic_bezier_curve(-0.35, 0, -0.3, 0.18, -0.16, 0.22, -0.05, 0.1, 244, 89, 48)
+    quad_bezier_curve(-0.15, 0.1, 0.03, 0.27, 0.1, 0.07, *fin_color)
+    cubic_bezier_curve(-0.35, 0, -0.3, 0.18, -0.16, 0.22, -0.05, 0.1, *fin_color)
 
     #lower
-    cubic_bezier_curve(-0.35, 0, -0.3, -0.15, -0.16, -0.2, -0.1, -0.1, 244, 89, 48)
-    quad_bezier_curve(-0.03, -0.07, -0.05, -0.26, 0.08, -0.09, 244, 89, 48)
+    cubic_bezier_curve(-0.35, 0, -0.3, -0.15, -0.16, -0.2, -0.1, -0.1, *fin_color)
+    quad_bezier_curve(-0.03, -0.07, -0.05, -0.26, 0.08, -0.09, *fin_color)
 
     #tail
-    cubic_bezier_curve(-0.5, 0, -0.49, 0.1, -0.47, 0.15, -0.35, 0, 244, 89, 48)
-    cubic_bezier_curve(-0.5, 0, -0.49, -0.1, -0.47, -0.15, -0.35, 0.02, 244, 89, 48)
+    cubic_bezier_curve(-0.5, 0, -0.49, 0.1, -0.47, 0.15, -0.35, 0, *fin_color)
+    cubic_bezier_curve(-0.5, 0, -0.49, -0.1, -0.47, -0.15, -0.35, 0.02, *fin_color)
 
     #body
-    cubic_bezier_curve(-0.4, 0, -0.2, 0.1, -0, 0.25, 0.2, 0, 242, 111, 51)
-    cubic_bezier_curve(-0.4, 0, -0.2, -0.1, -0, -0.25, 0.2, 0.02, 242, 111, 51)
+    cubic_bezier_curve(-0.4, 0, -0.2, 0.1, -0, 0.25, 0.2, 0, *body_color)
+    cubic_bezier_curve(-0.4, 0, -0.2, -0.1, -0, -0.25, 0.2, 0.02, *body_color)
 
     #eye
     circle(0.13, 0.03, 0.017, 180, 255, 255, 255)
@@ -263,7 +264,7 @@ def main():
 
     background = pg.image.load("assets/background.jpeg")
 
-    angle = 0
+    star_angle = 0
     
     while True:
         for event in pg.event.get():
@@ -279,6 +280,7 @@ def main():
         
         shark(0, 0)
         basic_fish(0.4, 0.7, 0.6, True)
+        basic_fish(1, 0.8, 0.5, fin_color=(86, 112, 181), body_color=(252, 218, 0))
         tropical_fish(-0.6, 0.3, 0.7)
         clown_fish(-0.9, 0.7, 0.8)
 
@@ -286,11 +288,11 @@ def main():
         star(-1.1, -0.3)
         extra_life(-1.15, -0.6)
 
-        star_3D(-1.4, -0.3, 0, angle=angle)
+        star_3D(-1.4, -0.3, 0, angle=star_angle)
 
         draw_text("Score: 123", -1.55, 0.87, 50)
         draw_text("Lives: 3", 1.25, 0.87, 50)
-        angle += 1
+        star_angle += 1
 
         pg.display.flip()
         pg.time.wait(10)
