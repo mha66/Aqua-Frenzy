@@ -59,6 +59,14 @@ def rectangle_gradient(x1, y1, x2, y2, r1, g1, b1, r2, g2, b2):
     glVertex2f(x2, y1)
     glEnd()
 
+def quad_3D(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, r, g, b):
+    glBegin(GL_QUADS)
+    glColor3f(r/255, g/255, b/255)
+    glVertex3f(x1, y1, z1)
+    glVertex3f(x2, y2, z2)
+    glVertex3f(x3, y3, z3)
+    glVertex3f(x4, y4, z4)
+    glEnd()
 
 def circle(xc, yc, radius, num_segments, r, g, b, a=1, fill=True):
     if fill:
@@ -347,32 +355,14 @@ def star(x, y, size=1.0):
     circle(0, 0, 0.08, 180, 180, 180, 200, fill=False)
     glPopMatrix()
 
-def sphere(radius, slices, stacks, r, g, b, a, rotation):
-    glPushMatrix()
-    glRotatef(rotation, 0, 1, 0)
-    for i in range(slices):
-        glColor4f(r/255, g/255, b/255, a)
-        theta1 = i * mm.pi * 2 / slices
-        theta2 = (i + 1) * mm.pi * 2 / slices
-        glBegin(GL_QUAD_STRIP)
-        for j in range(stacks + 1):
-            phi = j * mm.pi / stacks
-            x1 = radius * mm.cos(theta1) * mm.sin(phi)
-            y1 = radius * mm.sin(theta1) * mm.sin(phi)
-            z1 = radius * mm.cos(phi)
-            x2 = radius * mm.cos(theta2) * mm.sin(phi)
-            y2 = radius * mm.sin(theta2) * mm.sin(phi)
-            z2 = radius * mm.cos(phi)
-            glVertex3f(x1, y1, z1)
-            glVertex3f(x2, y2, z2)
-        glEnd()
-    glPopMatrix()
 
-def star_3D(x, y, z=0, r=180, g=180, b=200, size=1.0, depth=0.02, angle=0):
+def star_3D(x, y, z=0, size=1.0, depth=0.02, angle=0):
     glPushMatrix()
     glTranslatef(x, y, z)
     glScalef(size, size, 0)
-    glRotatef(angle, 0, 1, 0)
+
+    glPushMatrix()
+    glRotatef(angle, 1, 1, 1)
 
     d = depth/2
     #front
@@ -396,23 +386,26 @@ def star_3D(x, y, z=0, r=180, g=180, b=200, size=1.0, depth=0.02, angle=0):
     triangle_3D(0.03, 0, -d, 0, -0.03, -d, 0.04, -0.06, -d, 255, 215, 0)
     
     #sides
-    #right
-    glBegin(GL_QUADS)
-    glVertex3f(0, 0.07, d)
-    glVertex3f(0, 0.07, -d)
-    glVertex3f(0.04, -0.06, -d)
-    glVertex3f(0.04, -0.06, d)
-    glEnd()
-
     #left
-    glBegin(GL_QUADS)
-    glVertex3f(0, 0.07, d)
-    glVertex3f(0, 0.07, -d)
-    glVertex3f(-0.04, -0.06, -d)
-    glVertex3f(-0.04, -0.06, d)
-    glEnd()
+    quad_3D(0, 0.07, d, 0, 0.07, -d, -0.04, -0.06, -d, -0.04, -0.06, d, 255, 215, 0)
+    
+    #right
+    quad_3D(0, 0.07, d, 0, 0.07, -d, 0.04, -0.06, -d, 0.04, -0.06, d, 255, 215, 0)
 
-    sphere(0.08, 20, 20, r, g, b, 0.3, angle)
+    # #top
+    # quad_3D(-0.07, 0.02, d, -0.07, 0.02, -d, 0.07, 0.02, -d, 0.07, 0.02, d, 255, 215, 0)
+
+    # #bottom
+    # #left face
+    # quad_3D(-0.07, 0.02, d, -0.07, 0.02, -d, 0.04, -0.06, -d, 0.04, -0.06, d, 255, 215, 0)
+    # #right face
+    # quad_3D(0.07, 0.02, d, 0.07, 0.02, -d, -0.04, -0.06, -d, -0.04, -0.06, d, 255, 215, 0)
+
+    glPopMatrix()
+
+    circle(0, 0, 0.09, 180, 180, 180, 200, 0.3)
+    circle(0, 0, 0.09, 180, 180, 180, 200, fill=False)
+
     glPopMatrix()
 
 def extra_life(x, y, size=1.0):
@@ -458,11 +451,8 @@ def main():
     glDepthFunc(GL_LEQUAL)
 
     background = pg.image.load("assets/background.jpeg")
+
     angle = 0
-    
-    colors = [170, 170, 200]
-    c_i = 1
-    increase = True
     
     while True:
         for event in pg.event.get():
@@ -485,14 +475,7 @@ def main():
         star(-1.1, -0.3)
         extra_life(-1.15, -0.6)
 
-        if (colors[c_i] == 170 and not increase) or (colors[c_i] == 200 and increase):
-            c_i = (c_i+1) % 3
-            increase = not increase
-        if increase:
-            colors[c_i] += 1
-        else:
-            colors[c_i] -= 1
-        star_3D(-1.4, -0.3, 0, *colors, angle=angle)
+        star_3D(-1.4, -0.3, 0, angle=angle)
 
         draw_text("Score: 123", -1.55, 0.87, 50)
         draw_text("Lives: 3", 1.25, 0.87, 50)
