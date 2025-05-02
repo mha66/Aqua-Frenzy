@@ -57,6 +57,8 @@ def shark(x, y, size=1.0, reverse=False):
     triangle(-0.25, -0.1, 0, -0.1, 0.05, -0.2, *lower_color)
     #body
     ellipse_gradient(0, 0, 0.5, 0.13, 180, *upper_color, *lower_color, 0.55)
+    #mouth
+    line(-0.46, -0.05, -0.4, -0.04, 0, 0, 0)
     #gills
     for i in range(4):
         x1 = -0.28 + i*0.02
@@ -87,6 +89,8 @@ def tropical_fish(x, y, size=1.0, reverse=False, fin_color = (252, 218, 0), body
     quad_bezier_curve(-0.2, 0, 0.05, -0.2, 0.2, 0.01, *body_color)
     #side fin
     triangle_gradient(0.02, 0.02, 0.1, -0.02, 0.09, -0.05, *fin_color, *gradient_color)
+    #mouth
+    line(0.13, -0.015, 0.18, -0.015, 0, 0, 0)
     #eye
     circle(0.11, 0.04, 0.015, 180, 255, 255, 255)
     circle(0.11, 0.04, 0.01, 180, 0, 0, 0)
@@ -118,6 +122,9 @@ def clown_fish(x, y, size=1.0, reverse=False):
     #body
     cubic_bezier_curve(-0.4, 0, -0.2, 0.1, -0, 0.25, 0.2, 0, *body_color)
     cubic_bezier_curve(-0.4, 0, -0.2, -0.1, -0, -0.25, 0.2, 0.02, *body_color)
+
+    #mouth
+    line(0.11, -0.015, 0.17, -0.015, 0, 0, 0)
 
     #eye
     circle(0.13, 0.03, 0.017, 180, 255, 255, 255)
