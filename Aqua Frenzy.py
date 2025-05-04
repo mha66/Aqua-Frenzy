@@ -14,7 +14,7 @@ class Fish:
         self.y = y
         self.size = size
         self.reverse = reverse
-        self.speed = random.uniform(0.01, 0.03)
+        self.speed = random.uniform(0.005, 0.015)
 
     def update_position(self):
         if(self.reverse):
@@ -186,97 +186,105 @@ class ClownFish(Fish):
 
         glPopMatrix()
 
-def bubble(x, y, radius=0.05):
-    glPushMatrix()
-    glTranslatef(x, y, 0)
-    circle(0, 0, radius, 180, 180, 180, 200, 0.3)
-    circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
-    circle(0, 0, radius, 180, 180, 180, 200, fill=False)
-    glPopMatrix()
+class Item:
+    def __init__(self, x=0, y=0, size=1.0):
+        self.x = x
+        self.y = y
+        self.size = size
+        self.speed = random.uniform(0.005, 0.01)
 
-def star(x, y, size=1.0):
-    glPushMatrix()
-    glTranslatef(x, y, 0)
-    glScalef(size, size, 0)
-    #base (sides)
-    triangle(-0.07, 0.02, 0.07, 0.02, 0, -0.03, 255, 215, 0)
-    #upper
-    triangle(-0.02, 0.02, 0.02, 0.02, 0, 0.07, 255, 215, 0)
-    #bottom left
-    triangle(-0.03, 0, 0, -0.03, -0.04, -0.06, 255, 215, 0)
-    #bottom right
-    triangle(0.03, 0, 0, -0.03, 0.04, -0.06, 255, 215, 0)
-    #bubble
-    circle(0, 0, 0.08, 180, 180, 180, 200, 0.3)
-    circle(0, 0, 0.08, 180, 180, 180, 200, fill=False)
-    glPopMatrix()
+    def update_position(self):
+        self.y += self.speed
 
+class Bubble(Item):
 
-def star_3D(x, y, z=0, size=1.0, depth=0.02, angle=0):
-    glPushMatrix()
-    glTranslatef(x, y, z)
-    glScalef(size, size, 0)
+    def draw(self):
+        glPushMatrix()
+        radius = 0.05 * self.size
+        glTranslatef(self.x, self.y, 0)
+        circle(0, 0, radius, 180, 180, 180, 200, 0.3)
+        circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
+        circle(0, 0, radius, 180, 180, 180, 200, fill=False)
+        glPopMatrix()
 
-    glPushMatrix()
-    glRotatef(angle, 1, 1, 1)
+class ExtraLife(Item):
 
-    d = depth/2
-    #front
-    #base (sides)
-    triangle_3D(-0.07, 0.02, d, 0.07, 0.02, d, 0, -0.03, d, 255, 215, 0)
-    #upper
-    triangle_3D(-0.02, 0.02, d, 0.02, 0.02, d, 0, 0.07, d, 255, 215, 0)
-    #bottom left
-    triangle_3D(-0.03, 0, d, 0, -0.03, d, -0.04, -0.06, d, 255, 215, 0)
-    #bottom right
-    triangle_3D(0.03, 0, d, 0, -0.03, d, 0.04, -0.06, d, 255, 215, 0)
+    def draw(self):
+        glPushMatrix()
+        glTranslatef(self.x, self.y, 0)
+        glScalef(self.size, self.size, 0)
+        #+
+        rectangle(-0.04, -0.03, -0.02, 0.03, 255, 215, 0)
+        rectangle(-0.06, -0.01, 0, 0.01, 255, 215, 0)
+        #1
+        rectangle(0.02, -0.03, 0.04, 0.04, 255, 215, 0)
+        #bubble
+        circle(0, 0, 0.08, 180, 180, 180, 200, 0.3)
+        circle(0, 0, 0.08, 180, 180, 180, 200, fill=False)
+        glPopMatrix()
 
-    #back
-    #base (sides)
-    triangle_3D(-0.07, 0.02, -d, 0.07, 0.02, -d, 0, -0.03, -d, 255, 215, 0)
-    #upper
-    triangle_3D(-0.02, 0.02, -d, 0.02, 0.02, -d, 0, 0.07, -d, 255, 215, 0)
-    #bottom left
-    triangle_3D(-0.03, 0, -d, 0, -0.03, -d, -0.04, -0.06, -d, 255, 215, 0)
-    #bottom right
-    triangle_3D(0.03, 0, -d, 0, -0.03, -d, 0.04, -0.06, -d, 255, 215, 0)
+class Star(Item):
+
+    def __init__(self, x=0, y=0, size=1):
+        super().__init__(x, y, size)
+        self.angle = 0
     
-    #sides
-    #left
-    quad_3D(0, 0.07, d, 0, 0.07, -d, -0.04, -0.06, -d, -0.04, -0.06, d, 255, 215, 0)
-    
-    #right
-    quad_3D(0, 0.07, d, 0, 0.07, -d, 0.04, -0.06, -d, 0.04, -0.06, d, 255, 215, 0)
+    def update_position(self):
+        super().update_position()
+        self.angle += 1
 
-    #top
-    quad_3D(-0.07, 0.02, d, -0.07, 0.02, -d, 0.07, 0.02, -d, 0.07, 0.02, d, 255, 215, 0)
+    def draw(self):
+        glPushMatrix()
+        glTranslatef(self.x, self.y, 0)
+        glScalef(self.size, self.size, 0)
 
-    #bottom
-    #left face
-    quad_3D(-0.07, 0.02, d, -0.07, 0.02, -d, 0.04, -0.06, -d, 0.04, -0.06, d, 255, 215, 0)
-    #right face
-    quad_3D(0.07, 0.02, d, 0.07, 0.02, -d, -0.04, -0.06, -d, -0.04, -0.06, d, 255, 215, 0)
+        glPushMatrix()
+        glRotatef(self.angle, 1, 1, 1)
 
-    glPopMatrix()
+        d = 0.01
+        #front
+        #base (sides)
+        triangle_3D(-0.07, 0.02, d, 0.07, 0.02, d, 0, -0.03, d, 255, 215, 0)
+        #upper
+        triangle_3D(-0.02, 0.02, d, 0.02, 0.02, d, 0, 0.07, d, 255, 215, 0)
+        #bottom left
+        triangle_3D(-0.03, 0, d, 0, -0.03, d, -0.04, -0.06, d, 255, 215, 0)
+        #bottom right
+        triangle_3D(0.03, 0, d, 0, -0.03, d, 0.04, -0.06, d, 255, 215, 0)
 
-    circle(0, 0, 0.09, 180, 180, 180, 200, 0.3)
-    circle(0, 0, 0.09, 180, 180, 180, 200, fill=False)
+        #back
+        #base (sides)
+        triangle_3D(-0.07, 0.02, -d, 0.07, 0.02, -d, 0, -0.03, -d, 255, 215, 0)
+        #upper
+        triangle_3D(-0.02, 0.02, -d, 0.02, 0.02, -d, 0, 0.07, -d, 255, 215, 0)
+        #bottom left
+        triangle_3D(-0.03, 0, -d, 0, -0.03, -d, -0.04, -0.06, -d, 255, 215, 0)
+        #bottom right
+        triangle_3D(0.03, 0, -d, 0, -0.03, -d, 0.04, -0.06, -d, 255, 215, 0)
+        
+        #sides
+        #left
+        quad_3D(0, 0.07, d, 0, 0.07, -d, -0.04, -0.06, -d, -0.04, -0.06, d, 255, 215, 0)
+        
+        #right
+        quad_3D(0, 0.07, d, 0, 0.07, -d, 0.04, -0.06, -d, 0.04, -0.06, d, 255, 215, 0)
 
-    glPopMatrix()
+        #top
+        quad_3D(-0.07, 0.02, d, -0.07, 0.02, -d, 0.07, 0.02, -d, 0.07, 0.02, d, 255, 215, 0)
 
-def extra_life(x, y, size=1.0):
-    glPushMatrix()
-    glTranslatef(x, y, 0)
-    glScalef(size, size, 0)
-    #+
-    rectangle(-0.04, -0.03, -0.02, 0.03, 255, 215, 0)
-    rectangle(-0.06, -0.01, 0, 0.01, 255, 215, 0)
-    #1
-    rectangle(0.02, -0.03, 0.04, 0.04, 255, 215, 0)
-    #bubble
-    circle(0, 0, 0.08, 180, 180, 180, 200, 0.3)
-    circle(0, 0, 0.08, 180, 180, 180, 200, fill=False)
-    glPopMatrix()
+        #bottom
+        #left face
+        quad_3D(-0.07, 0.02, d, -0.07, 0.02, -d, 0.04, -0.06, -d, 0.04, -0.06, d, 255, 215, 0)
+        #right face
+        quad_3D(0.07, 0.02, d, 0.07, 0.02, -d, -0.04, -0.06, -d, -0.04, -0.06, d, 255, 215, 0)
+
+        glPopMatrix()
+
+        #bubble
+        circle(0, 0, 0.09, 180, 180, 180, 200, 0.3)
+        circle(0, 0, 0.09, 180, 180, 180, 200, fill=False)
+
+        glPopMatrix()
 
 def draw_text(text, x, y, font_size=32, color=(255, 255, 255)):
     font = pg.font.SysFont('Arial', font_size)
@@ -308,12 +316,13 @@ def main():
 
     background = pg.image.load("assets/background.jpeg")
 
-    star_angle = 0
     
     fishList = [BasicFish(0.4, 0.7, 0.6, True),
                 Shark(size=0.8),
                 TropicalFish(-1.6, -0.5),
                 ClownFish(1.6, -0.7, reverse=True)]
+    
+    items = [Bubble(0, -1, 1.5), Star(-0.5, -1), ExtraLife(0.5, -1)]
 
     while True:
         for event in pg.event.get():
@@ -322,6 +331,7 @@ def main():
                 return
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        
         #background
         draw_image(background, -1.6, -1)
         
@@ -329,17 +339,15 @@ def main():
             fish.update_position()
             fish.draw()
 
+        for item in items:
+            item.update_position()
+            item.draw()
+
         # basic_fish(1, 0.8, 0.5, fin_color=(86, 112, 181), body_color=(252, 218, 0))
         
-        bubble(-1.2, 0, 0.05)
-        star(-1.1, -0.3)
-        extra_life(-1.15, -0.6)
-
-        star_3D(-1.4, -0.3, 0, angle=star_angle)
 
         draw_text("Score: 123", -1.55, 0.87, 50)
         draw_text("Lives: 3", 1.25, 0.87, 50)
-        star_angle += 1
 
         pg.display.flip()
         pg.time.wait(10)
