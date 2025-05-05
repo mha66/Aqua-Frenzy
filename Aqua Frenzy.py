@@ -23,13 +23,15 @@ class Fish:
             self.x += self.speed
 
 
-
-
 class BasicFish(Fish):
-    def __init__(self, x=0, y=0, size=1.0, reverse=False, fin_color = (183, 52, 34), body_color = (255, 111, 28)):
+    #(fin_color, body_color)
+    color_schemes = [((183, 52, 34), (255, 111, 28)),
+                     ((86, 112, 181), (252, 218, 0))]
+    
+    def __init__(self, x=0, y=0, size=1.0, reverse=False, selected_color=0):
         super().__init__(x, y, size, reverse)
-        self.fin_color = fin_color
-        self.body_color = body_color
+        self.fin_color = self.color_schemes[selected_color][0]
+        self.body_color = self.color_schemes[selected_color][1]
 
     def draw(self):
         glPushMatrix()
@@ -60,10 +62,13 @@ class BasicFish(Fish):
         glPopMatrix()
 
 class Shark(Fish):
-    def __init__(self, x=0, y=0, size=1.0, reverse=False):
+    #(upper_color, lower_color)
+    color_schemes = [((151, 156, 168), (180, 186, 191))]
+
+    def __init__(self, x=0, y=0, size=1.0, reverse=False, selected_color=0):
         super().__init__(x, y, size, reverse)
-        self.upper_color = (151, 156, 168)
-        self.lower_color = (180, 186, 191)
+        self.upper_color = self.color_schemes[selected_color][0]
+        self.lower_color = self.color_schemes[selected_color][1]
 
     def draw(self):
         glPushMatrix()
@@ -99,11 +104,14 @@ class Shark(Fish):
         glPopMatrix()
 
 class TropicalFish(Fish):
-    def __init__(self, x=0, y=0, size=1.0, reverse=False, fin_color = (252, 218, 0), body_color = (86, 112, 181), gradient_color = (67, 98, 154)):
+    #(fin_color, body_color, gradient_color)
+    color_schemes = [((252, 218, 0), (86, 112, 181), (67, 98, 154))]
+
+    def __init__(self, x=0, y=0, size=1.0, reverse=False, selected_color=0):
         super().__init__(x, y, size, reverse)
-        self.fin_color = fin_color
-        self.body_color = body_color
-        self.gradient_color = gradient_color
+        self.fin_color = self.color_schemes[selected_color][0]
+        self.body_color = self.color_schemes[selected_color][1]
+        self.gradient_color = self.color_schemes[selected_color][2]
 
     def draw(self):
         glPushMatrix()
@@ -133,10 +141,13 @@ class TropicalFish(Fish):
         glPopMatrix()
 
 class ClownFish(Fish):
-    def __init__(self, x=0, y=0, size=1.0, reverse=False):
+    #(fin_color, body_color)
+    color_schemes = [((244, 89, 48), (242, 111, 51))]
+
+    def __init__(self, x=0, y=0, size=1.0, reverse=False, selected_color=0):
         super().__init__(x, y, size, reverse)
-        self.fin_color = (244, 89, 48)
-        self.body_color = (242, 111, 51)
+        self.fin_color = self.color_schemes[selected_color][0]
+        self.body_color = self.color_schemes[selected_color][1]
 
     def draw(self):
         glPushMatrix()
@@ -312,6 +323,25 @@ def draw_image(image_surface, x, y):
     glRasterPos2d(x, y)
     glDrawPixels(image_surface.get_width(), image_surface.get_height(), GL_RGBA, GL_UNSIGNED_BYTE, image_data)
 
+
+FISH_CLASSES = [BasicFish, Shark, TropicalFish, ClownFish]
+def spawn_fish():
+    fish_class = FISH_CLASSES[random.randint(0, 3)]
+    x = -1.6
+    y = random.uniform(-1, 1)
+    reverse = random.randint(0, 1) == 1
+    if reverse:
+        x = 1.6
+    size = random.uniform(0.3, 1)
+    selected_color = random.randint(0, len(fish_class.color_schemes) - 1)
+    return fish_class(x, y, size, reverse, selected_color)
+
+def set_spawn_timer(time_delay = 3000):
+    timer_event = pg.USEREVENT + 1
+    pg.time.set_timer(timer_event, time_delay)
+    return timer_event
+    
+
 def main():
     pg.init()
   
@@ -332,19 +362,28 @@ def main():
 
     background = pg.image.load("assets/background.jpeg")
 
-    player = Player(TropicalFish(0, 0, 0.6))
-    fishList = [BasicFish(1.6, 0.6, 0.9, True, fin_color=(86, 112, 181), body_color=(252, 218, 0)),
-                Shark(size=0.8),
-                TropicalFish(-1.6, -0.5),
-                ClownFish(1.6, -0.7, reverse=True)]
+    player = Player(BasicFish(0, 0, 0.6))
+    fishList = []
+    
+    # fishList = [BasicFish(1.6, 0.6, 0.9, True, fin_color=(86, 112, 181), body_color=(252, 218, 0)),
+    #             Shark(size=0.8),
+    #             TropicalFish(-1.6, -0.5),
+    #             ClownFish(1.6, -0.7, reverse=True)]
+    
+
     
     items = [Bubble(0, -1, 1.5), Star(-0.5, -1), ExtraLife(0.5, -1)]
+
+    spawn_timer = set_spawn_timer()
 
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 return
+            elif event.type == spawn_timer:
+                fishList.append(spawn_fish())
+                spawn_timer = set_spawn_timer()
 
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -353,6 +392,8 @@ def main():
         draw_image(background, -1.6, -1)
         
         for fish in fishList:
+            if fish.x < -2 or fish.x > 2:
+                fishList.remove(fish)
             fish.update_position()
             fish.draw()
 
