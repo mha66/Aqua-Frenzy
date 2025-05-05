@@ -327,11 +327,11 @@ def draw_image(image_surface, x, y):
 FISH_CLASSES = [BasicFish, Shark, TropicalFish, ClownFish]
 def spawn_fish():
     fish_class = FISH_CLASSES[random.randint(0, 3)]
-    x = -1.6
+    x = -1.9
     y = random.uniform(-1, 1)
     reverse = random.randint(0, 1) == 1
     if reverse:
-        x = 1.6
+        x = 1.9
     size = random.uniform(0.3, 1)
     selected_color = random.randint(0, len(fish_class.color_schemes) - 1)
     return fish_class(x, y, size, reverse, selected_color)
@@ -365,16 +365,9 @@ def main():
     player = Player(BasicFish(0, 0, 0.6))
     fishList = []
     
-    # fishList = [BasicFish(1.6, 0.6, 0.9, True, fin_color=(86, 112, 181), body_color=(252, 218, 0)),
-    #             Shark(size=0.8),
-    #             TropicalFish(-1.6, -0.5),
-    #             ClownFish(1.6, -0.7, reverse=True)]
-    
-
-    
     items = [Bubble(0, -1, 1.5), Star(-0.5, -1), ExtraLife(0.5, -1)]
 
-    spawn_timer = set_spawn_timer()
+    spawn_timer = set_spawn_timer(4000)
 
     while True:
         for event in pg.event.get():
@@ -383,26 +376,28 @@ def main():
                 return
             elif event.type == spawn_timer:
                 fishList.append(spawn_fish())
-                spawn_timer = set_spawn_timer()
+                set_spawn_timer(4000)
 
-        
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
         #background
         draw_image(background, -1.6, -1)
         
-        for fish in fishList:
+        for fish in fishList.copy():
             if fish.x < -2 or fish.x > 2:
                 fishList.remove(fish)
+                continue
             fish.update_position()
             fish.draw()
 
-        for item in items:
+        for item in items.copy():
             item.update_position()
             item.draw()
 
-        x, y = pg.mouse.get_pos()
-        player.update_position(x*3.2/display[0] - 1.6, 1 - y*2/display[1])
+        x_mouse, y_mouse = pg.mouse.get_pos()
+        x_mouse = x_mouse*3.2/display[0] - 1.6    #x is normalized from [0, 1600] to [-1.6, 1.6] 
+        y_mouse = 1 - y_mouse*2/display[1]        #y is normalized from [1000, 0] to [-1, 1]
+        player.update_position(x_mouse, y_mouse)
         player.draw()
         
 
