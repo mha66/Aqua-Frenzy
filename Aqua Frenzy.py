@@ -212,11 +212,13 @@ class Player:
         self.fish.draw()
 
 class Item:
-    def __init__(self, x=0, y=0, size=1.0):
+    def __init__(self, x=0, y=0, size=1.0, move_down = False):
         self.x = x
         self.y = y
         self.size = size
         self.speed = random.uniform(0.005, 0.01)
+        if move_down:
+            self.speed *= -1
 
     def update_position(self):
         self.y += self.speed
@@ -250,8 +252,8 @@ class ExtraLife(Item):
 
 class Star(Item):
 
-    def __init__(self, x=0, y=0, size=1):
-        super().__init__(x, y, size)
+    def __init__(self, x=0, y=0, size=1, move_down = False):
+        super().__init__(x, y, size, move_down)
         self.angle = 0
     
     def update_position(self):
@@ -328,7 +330,7 @@ FISH_CLASSES = [BasicFish, Shark, TropicalFish, ClownFish]
 def spawn_fish():
     fish_class = FISH_CLASSES[random.randint(0, 3)]
     x = -1.9
-    y = random.uniform(-1, 1)
+    y = random.uniform(-0.95, 0.95)
     reverse = random.randint(0, 1) == 1
     if reverse:
         x = 1.9
@@ -336,11 +338,17 @@ def spawn_fish():
     selected_color = random.randint(0, len(fish_class.color_schemes) - 1)
     return fish_class(x, y, size, reverse, selected_color)
 
-def set_spawn_timer(time_delay = 3000):
-    timer_event = pg.USEREVENT + 1
-    pg.time.set_timer(timer_event, time_delay)
-    return timer_event
-    
+ITEM_CLASSES = [Bubble, Star, ExtraLife]
+def spawn_item():
+    item_class = ITEM_CLASSES[random.randint(0,2)]
+    x = random.uniform(-1.5, 1.5)
+    y = -1.1
+    move_down = random.randint(0, 1) == 1
+    if move_down:
+        y = 1.1
+    return item_class(x, y, 1, move_down)
+
+
 
 def main():
     pg.init()
@@ -364,19 +372,25 @@ def main():
 
     player = Player(BasicFish(0, 0, 0.6))
     fishList = []
-    
-    items = [Bubble(0, -1, 1.5), Star(-0.5, -1), ExtraLife(0.5, -1)]
+    items = []
+    #items = [Bubble(0, -1, 1.5), Star(-0.5, -1), ExtraLife(0.5, -1)]
 
-    spawn_timer = set_spawn_timer(4000)
+    fish_spawn_timer = pg.USEREVENT + 1
+    pg.time.set_timer(fish_spawn_timer, 4000)
+    item_spawn_timer = pg.USEREVENT + 2
+    pg.time.set_timer(item_spawn_timer, 7000)
 
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 return
-            elif event.type == spawn_timer:
+            elif event.type == fish_spawn_timer:
                 fishList.append(spawn_fish())
-                set_spawn_timer(4000)
+                pg.time.set_timer(fish_spawn_timer, 4000)
+            elif event.type == item_spawn_timer:
+                items.append(spawn_item())
+                pg.time.set_timer(item_spawn_timer, 7000)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
@@ -389,16 +403,20 @@ def main():
                 continue
             fish.update_position()
             fish.draw()
-
-        for item in items.copy():
-            item.update_position()
-            item.draw()
-
+            
         x_mouse, y_mouse = pg.mouse.get_pos()
         x_mouse = x_mouse*3.2/display[0] - 1.6    #x is normalized from [0, 1600] to [-1.6, 1.6] 
         y_mouse = 1 - y_mouse*2/display[1]        #y is normalized from [1000, 0] to [-1, 1]
         player.update_position(x_mouse, y_mouse)
         player.draw()
+
+        for item in items.copy():
+            if item.y < -1.2 or item.y > 1.2:
+                items.remove(item)
+                continue
+            item.update_position()
+            item.draw()
+
         
 
         draw_text("Score: 123", -1.55, 0.87, 50)
