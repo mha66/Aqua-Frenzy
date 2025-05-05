@@ -23,6 +23,8 @@ class Fish:
             self.x += self.speed
 
 
+
+
 class BasicFish(Fish):
     def __init__(self, x=0, y=0, size=1.0, reverse=False, fin_color = (183, 52, 34), body_color = (255, 111, 28)):
         super().__init__(x, y, size, reverse)
@@ -186,6 +188,15 @@ class ClownFish(Fish):
 
         glPopMatrix()
 
+class Player(BasicFish):
+    def __init__(self, x=0, y=0, size=1, reverse=False, fin_color=(183, 52, 34), body_color=(255, 111, 28)):
+        super().__init__(x, y, size, reverse, fin_color, body_color)
+        
+    def update_position(self, x, y):
+        self.reverse = x-self.x < 0
+        self.x += 0.1*(x-self.x)
+        self.y += 0.1*(y-self.y)
+
 class Item:
     def __init__(self, x=0, y=0, size=1.0):
         self.x = x
@@ -308,6 +319,8 @@ def main():
     glTranslatef(0, 0, -2.415)
 
     # glOrtho(-1.6, 1.6, -1, 1, -1, 1)
+
+    #enable transparency
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
@@ -316,8 +329,8 @@ def main():
 
     background = pg.image.load("assets/background.jpeg")
 
-    
-    fishList = [BasicFish(0.4, 0.7, 0.6, True),
+    player = Player(0, 0, 0.6)
+    fishList = [BasicFish(1.6, 0.6, 0.9, True, fin_color=(86, 112, 181), body_color=(252, 218, 0)),
                 Shark(size=0.8),
                 TropicalFish(-1.6, -0.5),
                 ClownFish(1.6, -0.7, reverse=True)]
@@ -329,6 +342,8 @@ def main():
             if event.type == pg.QUIT:
                 pg.quit()
                 return
+            #elif event.type == pg.MOUSEMOTION:
+
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
@@ -342,6 +357,10 @@ def main():
         for item in items:
             item.update_position()
             item.draw()
+
+        x, y = pg.mouse.get_pos()
+        player.update_position(x*3.2/display[0] - 1.6, 1 - y*2/display[1])
+        player.draw()
 
         # basic_fish(1, 0.8, 0.5, fin_color=(86, 112, 181), body_color=(252, 218, 0))
         
