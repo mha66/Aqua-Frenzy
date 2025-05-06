@@ -229,11 +229,16 @@ class Item:
         self.speed = random.uniform(0.005, 0.01)
         if move_down:
             self.speed *= -1
+        self.collider = None
 
     def update_position(self):
         self.y += self.speed
+        self.collider.update_position(self.x, self.y)
 
 class Bubble(Item):
+    def __init__(self, x=0, y=0, size=1.0, move_down=False):
+        super().__init__(x, y, size, move_down)
+        self.collider = ItemCollider(self.x, self.y, 0.05, self.size)
 
     def draw(self):
         glPushMatrix()
@@ -245,6 +250,9 @@ class Bubble(Item):
         glPopMatrix()
 
 class ExtraLife(Item):
+    def __init__(self, x=0, y=0, size=1.0, move_down=False):
+        super().__init__(x, y, size, move_down)
+        self.collider = ItemCollider(self.x, self.y, 0.08, self.size)
 
     def draw(self):
         glPushMatrix()
@@ -262,9 +270,10 @@ class ExtraLife(Item):
 
 class Star(Item):
 
-    def __init__(self, x=0, y=0, size=1, move_down = False):
+    def __init__(self, x=0, y=0, size=1.0, move_down = False):
         super().__init__(x, y, size, move_down)
         self.angle = 0
+        self.collider = ItemCollider(self.x, self.y, 0.09, self.size)
     
     def update_position(self):
         super().update_position()
@@ -370,23 +379,33 @@ class FishCollider:
         self.x = x
         self.y = y
 
+class ItemCollider:
+    def __init__(self, x, y, r, scale=1.0):
+        self.x = x
+        self.y = y
+        self.r = scale*r
 
-def is_ellipse_collision(fish1_collider: FishCollider, fish2_collider: FishCollider):
+    def update_position(self, x, y):
+        self.x = x
+        self.y = y
+
+
+def check_ellipse_collision(fish1_collider: FishCollider, fish2_collider: FishCollider):
     dx = (fish1_collider.x - fish2_collider.x) / (fish1_collider.rx + fish2_collider.rx)
     dy = (fish1_collider.y - fish2_collider.y) / (fish1_collider.ry + fish2_collider.ry)
     return dx*dx + dy*dy < 1
 
-def is_ellipse_circle_collision(xe, ye, rx, ry, xc, yc, r):
+def check_ellipse_circle_collision(fish_collider: FishCollider, item_collider: ItemCollider):
     # Normalize the circle's position relative to the ellipse
-    dx = (xc - xe) / rx
-    dy = (yc - ye) / ry
+    dx = (item_collider.x - fish_collider.x) / fish_collider.rx
+    dy = (item_collider.y - fish_collider.y) / fish_collider.ry
 
     # Distance from ellipse center to circle center in normalized space
     distance = mm.sqrt(dx*dx + dy*dy)
 
     # Circle's radius also needs to be scaled (average of x/y scale)
-    avg_scale = (1 / rx + 1 / ry) / 2
-    scaled_r = r * avg_scale
+    avg_scale = (1/fish_collider.rx + 1/fish_collider.ry) / 2
+    scaled_r = item_collider.r * avg_scale
 
     return distance < (1 + scaled_r)
 
@@ -413,7 +432,7 @@ def main():
 
     player = Player(BasicFish(0, 0, 0.6))
     fishList = [] 
-    items = [Bubble(-0.5, 0.5, 1.2)]
+    items = []
 
     fish_spawn_timer = pg.USEREVENT + 1
     pg.time.set_timer(fish_spawn_timer, 4000)
@@ -443,7 +462,7 @@ def main():
                 continue
             fish.update_position()
             fish.draw()
-            if is_ellipse_collision(player.fish.collider, fish.collider):
+            if check_ellipse_collision(player.fish.collider, fish.collider):
                 print("collided\n")
             
         x_mouse, y_mouse = pg.mouse.get_pos()
@@ -457,10 +476,9 @@ def main():
                 items.remove(item)
                 continue
             item.update_position()
-            # if is_ellipse_circle_collision(player.fish.x + 0.6*0.05, player.fish.y-0.6*0.038, 0.6*0.333, 0.6*0.16,
-            #                      item.x, item.y, 0.05*1.2):
-            #     print("collided\n")
             item.draw()
+            if check_ellipse_circle_collision(player.fish.collider, item.collider):
+                print("item collided\n")
 
         
 
