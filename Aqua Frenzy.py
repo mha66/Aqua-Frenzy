@@ -15,12 +15,15 @@ class Fish:
         self.size = size
         self.reverse = reverse
         self.speed = random.uniform(0.005, 0.015)
+        self.collider = None    #collider defined in child classes
 
     def update_position(self):
         if(self.reverse):
             self.x -= self.speed
         else:
             self.x += self.speed
+
+        self.collider.update_position(self.x, self.y)
 
 
 class BasicFish(Fish):
@@ -32,6 +35,7 @@ class BasicFish(Fish):
         super().__init__(x, y, size, reverse)
         self.fin_color = self.color_schemes[selected_color][0]
         self.body_color = self.color_schemes[selected_color][1]
+        self.collider = FishCollider(self.x + self.size*0.05, self.y + self.size*-0.038, 0.333, 0.16, self.size)
 
     def draw(self):
         glPushMatrix()
@@ -69,6 +73,7 @@ class Shark(Fish):
         super().__init__(x, y, size, reverse)
         self.upper_color = self.color_schemes[selected_color][0]
         self.lower_color = self.color_schemes[selected_color][1]
+        self.collider = FishCollider(self.x, self.y, 0.5, 0.13, self.size)
 
     def draw(self):
         glPushMatrix()
@@ -112,6 +117,7 @@ class TropicalFish(Fish):
         self.fin_color = self.color_schemes[selected_color][0]
         self.body_color = self.color_schemes[selected_color][1]
         self.gradient_color = self.color_schemes[selected_color][2]
+        self.collider = FishCollider(self.x, self.y, 0.2, 0.1, self.size)
 
     def draw(self):
         glPushMatrix()
@@ -148,6 +154,7 @@ class ClownFish(Fish):
         super().__init__(x, y, size, reverse)
         self.fin_color = self.color_schemes[selected_color][0]
         self.body_color = self.color_schemes[selected_color][1]
+        self.collider = FishCollider(self.x + self.size*-0.1, self.y, 0.3, 0.12, self.size)
 
     def draw(self):
         glPushMatrix()
@@ -197,6 +204,8 @@ class ClownFish(Fish):
         quad_bezier_curve(-0.3, 0.055, -0.2, 0, -0.305, -0.05, 255, 255, 255)
         quad_bezier_curve(-0.3, 0.055, -0.2, 0, -0.305, -0.05, 0, 0, 0, fill=False)
 
+        #ellipse(-0.1, 0, 0.3, 0.12, 180, 0, 0, 0, False)
+        # ellipse(-0.1+0.04, 0, 0.26, 0.13, 180, 0, 0, 0, False)
         glPopMatrix()
 
 class Player:
@@ -207,6 +216,7 @@ class Player:
         self.fish.reverse = x-self.fish.x < 0
         self.fish.x += 0.1*(x-self.fish.x)
         self.fish.y += 0.1*(y-self.fish.y)
+        self.fish.collider.update_position(self.fish.x, self.fish.y)
     
     def draw(self):
         self.fish.draw()
@@ -349,9 +359,21 @@ def spawn_item():
     return item_class(x, y, 1, move_down)
 
 
-def is_ellipse_collision(x1, y1, rx1, ry1, x2, y2, rx2, ry2):
-    dx = (x1 - x2) / (rx1 + rx2)
-    dy = (y1 - y2) / (ry1 + ry2)
+class FishCollider:
+    def __init__(self, x, y, rx, ry, scale=1.0):
+        self.x = x
+        self.y = y
+        self.rx = scale*rx
+        self.ry = scale*ry
+
+    def update_position(self, x, y):
+        self.x = x
+        self.y = y
+
+
+def is_ellipse_collision(fish1_collider: FishCollider, fish2_collider: FishCollider):
+    dx = (fish1_collider.x - fish2_collider.x) / (fish1_collider.rx + fish2_collider.rx)
+    dy = (fish1_collider.y - fish2_collider.y) / (fish1_collider.ry + fish2_collider.ry)
     return dx*dx + dy*dy < 1
 
 def is_ellipse_circle_collision(xe, ye, rx, ry, xc, yc, r):
@@ -390,13 +412,13 @@ def main():
     background = pg.image.load("assets/background.jpeg")
 
     player = Player(BasicFish(0, 0, 0.6))
-    fishList = [] #TropicalFish(-0.5, 0.5, 1)
+    fishList = [] 
     items = [Bubble(-0.5, 0.5, 1.2)]
 
     fish_spawn_timer = pg.USEREVENT + 1
-    # pg.time.set_timer(fish_spawn_timer, 4000)
+    pg.time.set_timer(fish_spawn_timer, 4000)
     item_spawn_timer = pg.USEREVENT + 2
-    # pg.time.set_timer(item_spawn_timer, 7000)
+    pg.time.set_timer(item_spawn_timer, 7000)
 
     while True:
         for event in pg.event.get():
@@ -419,11 +441,10 @@ def main():
             if fish.x < -2 or fish.x > 2:
                 fishList.remove(fish)
                 continue
-            #fish.update_position()
-            # if is_ellipse_collision(player.fish.x + 0.6*0.05, player.fish.y-0.6*0.038, 0.6*0.333, 0.6*0.16,
-            #                      fish.x + 0.05, fish.y-0.038, 0.333, 0.16):
-            #     print("collided\n")
+            fish.update_position()
             fish.draw()
+            if is_ellipse_collision(player.fish.collider, fish.collider):
+                print("collided\n")
             
         x_mouse, y_mouse = pg.mouse.get_pos()
         x_mouse = x_mouse*3.2/display[0] - 1.6    #x is normalized from [0, 1600] to [-1.6, 1.6] 
@@ -435,7 +456,7 @@ def main():
             if item.y < -1.2 or item.y > 1.2:
                 items.remove(item)
                 continue
-            #item.update_position()
+            item.update_position()
             # if is_ellipse_circle_collision(player.fish.x + 0.6*0.05, player.fish.y-0.6*0.038, 0.6*0.333, 0.6*0.16,
             #                      item.x, item.y, 0.05*1.2):
             #     print("collided\n")
