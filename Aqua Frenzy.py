@@ -137,7 +137,7 @@ class TropicalFish(Fish):
         #eye
         circle(0.11, 0.04, 0.015, 180, 255, 255, 255)
         circle(0.11, 0.04, 0.01, 180, 0, 0, 0)
-
+        #ellipse(0, 0, 0.2, 0.1, 180, 0, 0, 0, False)
         glPopMatrix()
 
 class ClownFish(Fish):
@@ -349,6 +349,25 @@ def spawn_item():
     return item_class(x, y, 1, move_down)
 
 
+def is_ellipse_collision(x1, y1, rx1, ry1, x2, y2, rx2, ry2):
+    dx = (x1 - x2) / (rx1 + rx2)
+    dy = (y1 - y2) / (ry1 + ry2)
+    return dx*dx + dy*dy < 1
+
+def is_ellipse_circle_collision(xe, ye, rx, ry, xc, yc, r):
+    # Normalize the circle's position relative to the ellipse
+    dx = (xc - xe) / rx
+    dy = (yc - ye) / ry
+
+    # Distance from ellipse center to circle center in normalized space
+    distance = mm.sqrt(dx*dx + dy*dy)
+
+    # Circle's radius also needs to be scaled (average of x/y scale)
+    avg_scale = (1 / rx + 1 / ry) / 2
+    scaled_r = r * avg_scale
+
+    return distance < (1 + scaled_r)
+
 
 def main():
     pg.init()
@@ -371,14 +390,13 @@ def main():
     background = pg.image.load("assets/background.jpeg")
 
     player = Player(BasicFish(0, 0, 0.6))
-    fishList = []
-    items = []
-    #items = [Bubble(0, -1, 1.5), Star(-0.5, -1), ExtraLife(0.5, -1)]
+    fishList = [] #TropicalFish(-0.5, 0.5, 1)
+    items = [Bubble(-0.5, 0.5, 1.2)]
 
     fish_spawn_timer = pg.USEREVENT + 1
-    pg.time.set_timer(fish_spawn_timer, 4000)
+    # pg.time.set_timer(fish_spawn_timer, 4000)
     item_spawn_timer = pg.USEREVENT + 2
-    pg.time.set_timer(item_spawn_timer, 7000)
+    # pg.time.set_timer(item_spawn_timer, 7000)
 
     while True:
         for event in pg.event.get():
@@ -401,7 +419,10 @@ def main():
             if fish.x < -2 or fish.x > 2:
                 fishList.remove(fish)
                 continue
-            fish.update_position()
+            #fish.update_position()
+            # if is_ellipse_collision(player.fish.x + 0.6*0.05, player.fish.y-0.6*0.038, 0.6*0.333, 0.6*0.16,
+            #                      fish.x + 0.05, fish.y-0.038, 0.333, 0.16):
+            #     print("collided\n")
             fish.draw()
             
         x_mouse, y_mouse = pg.mouse.get_pos()
@@ -409,12 +430,15 @@ def main():
         y_mouse = 1 - y_mouse*2/display[1]        #y is normalized from [1000, 0] to [-1, 1]
         player.update_position(x_mouse, y_mouse)
         player.draw()
-
+        
         for item in items.copy():
             if item.y < -1.2 or item.y > 1.2:
                 items.remove(item)
                 continue
-            item.update_position()
+            #item.update_position()
+            # if is_ellipse_circle_collision(player.fish.x + 0.6*0.05, player.fish.y-0.6*0.038, 0.6*0.333, 0.6*0.16,
+            #                      item.x, item.y, 0.05*1.2):
+            #     print("collided\n")
             item.draw()
 
         
