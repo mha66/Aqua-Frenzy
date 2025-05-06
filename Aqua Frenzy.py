@@ -209,8 +209,11 @@ class ClownFish(Fish):
         glPopMatrix()
 
 class Player:
-    def __init__(self, fish_object):
+    def __init__(self, fish_object, lives = 3, score = 0):
         self.fish = fish_object
+        self.lives = lives
+        self.score = score
+        self.is_immune = False
         
     def update_position(self, x, y):
         self.fish.reverse = x-self.fish.x < 0
@@ -220,6 +223,8 @@ class Player:
     
     def draw(self):
         self.fish.draw()
+    
+
 
 class Item:
     def __init__(self, x=0, y=0, size=1.0, move_down = False):
@@ -438,6 +443,7 @@ def main():
     pg.time.set_timer(fish_spawn_timer, 4000)
     item_spawn_timer = pg.USEREVENT + 2
     pg.time.set_timer(item_spawn_timer, 7000)
+    immunity_timer = pg.USEREVENT + 3
 
     while True:
         for event in pg.event.get():
@@ -446,10 +452,12 @@ def main():
                 return
             elif event.type == fish_spawn_timer:
                 fishList.append(spawn_fish())
-                pg.time.set_timer(fish_spawn_timer, 4000)
             elif event.type == item_spawn_timer:
                 items.append(spawn_item())
-                pg.time.set_timer(item_spawn_timer, 7000)
+            elif event.type == immunity_timer:
+                player.is_immune = False
+                
+
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
@@ -463,7 +471,15 @@ def main():
             fish.update_position()
             fish.draw()
             if check_ellipse_collision(player.fish.collider, fish.collider):
-                print("collided\n")
+                if player.fish.size >= fish.size:
+                    player.fish.size += 0.04*fish.size
+                    player.score += 10*fish.size
+                    fishList.remove(fish)
+                elif(not player.is_immune):
+                    player.lives -= 1
+                    player.is_immune = True
+                    pg.time.set_timer(immunity_timer, 5000, 1)
+
             
         x_mouse, y_mouse = pg.mouse.get_pos()
         x_mouse = x_mouse*3.2/display[0] - 1.6    #x is normalized from [0, 1600] to [-1.6, 1.6] 
@@ -482,8 +498,8 @@ def main():
 
         
 
-        draw_text("Score: 123", -1.55, 0.87, 50)
-        draw_text("Lives: 3", 1.25, 0.87, 50)
+        draw_text(f"Score: {int(player.score)}", -1.55, 0.87, 50)
+        draw_text(f"Lives: {player.lives}", 1.25, 0.87, 50)
 
         pg.display.flip()
         pg.time.wait(10)
