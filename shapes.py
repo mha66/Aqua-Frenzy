@@ -37,9 +37,9 @@ def triangle_gradient(x1, y1, x2, y2, x3, y3, r1, g1, b1, r2, g2, b2):
     glEnd()
 
 
-def rectangle(x1, y1, x2, y2, r, g, b):
+def rectangle(x1, y1, x2, y2, r, g, b, a=1):
     glBegin(GL_QUADS)
-    glColor3f(r/255, g/255, b/255)
+    glColor4f(r/255, g/255, b/255, a)
     glVertex2f(x1, y1)
     glVertex2f(x1, y2)
     glVertex2f(x2, y2)

@@ -217,15 +217,31 @@ class Player:
         self.lives = lives
         self.score = score
         self.is_immune = False
+        self.lost = False
         
     def update_position(self, x, y):
+        if self.lost:
+            return
         self.fish.reverse = x-self.fish.x < 0
         self.fish.x += 0.1*(x-self.fish.x)
         self.fish.y += 0.1*(y-self.fish.y)
         self.fish.collider.update_position(self.fish.x, self.fish.y)
     
     def draw(self):
+        if self.lost:
+            return
         self.fish.draw()
+    
+    def check_loss(self):
+        if self.lost:
+            rectangle(-1.6, -1, 1.6, 1, 0, 0, 0, 0.5)
+            draw_text("GAME OVER", -0.4, 0.1, 70, (255, 0, 0))
+            draw_text(f"FINAL SCORE: {int(self.score)}", -0.5, -0.1, 70, (255, 0, 0))
+            draw_text("Press any key to restart", -0.5, -0.6, 50, (255, 0, 0))
+    
+
+    
+
     
 
 
@@ -237,7 +253,7 @@ class Item:
         self.speed = random.uniform(0.005, 0.01)
         if move_down:
             self.speed *= -1
-        self.collider = None
+        self.collider = None    #collider defined in child classes
 
     def update_position(self):
         self.y += self.speed
@@ -460,6 +476,13 @@ def main():
                 items.append(spawn_item())
             elif event.type == immunity_timer:
                 player.is_immune = False
+            elif player.lost and (event.type == pg.MOUSEBUTTONDOWN or event.type == pg.KEYDOWN):
+                player = Player(BasicFish(0, 0, 0.6))
+                fishList.clear()
+                items.clear()
+                pg.time.set_timer(fish_spawn_timer, 4000)
+                pg.time.set_timer(item_spawn_timer, 7000)
+
                 
 
 
@@ -474,13 +497,14 @@ def main():
                 continue
             fish.update_position()
             fish.draw()
-            if check_ellipse_collision(player.fish.collider, fish.collider):
+            if check_ellipse_collision(player.fish.collider, fish.collider) and not player.lost:
                 if player.fish.size >= fish.size:
                     player.fish.size += 0.04*fish.size
                     player.score += 10*fish.size
                     fishList.remove(fish)
                 elif(not player.is_immune):
                     player.lives -= 1
+                    player.lost = player.lives == 0
                     player.is_immune = True
                     pg.time.set_timer(immunity_timer, 5000, 1)
 
@@ -497,7 +521,7 @@ def main():
                 continue
             item.update_position()
             item.draw()
-            if check_ellipse_circle_collision(player.fish.collider, item.collider):
+            if check_ellipse_circle_collision(player.fish.collider, item.collider) and not player.lost:
                 if(type(item) == Bubble):
                     player.score += 1
                 elif(type(item) == Star):
@@ -510,6 +534,8 @@ def main():
 
         draw_text(f"Score: {int(player.score)}", -1.55, 0.87, 50)
         draw_text(f"Lives: {player.lives}", 1.25, 0.87, 50)
+
+        player.check_loss()
 
         pg.display.flip()
         pg.time.wait(10)
