@@ -78,8 +78,9 @@ class Shark(Fish):
     def draw(self):
         glPushMatrix()
         glTranslatef(self.x, self.y, 0)
-        glScalef(self.size, self.size, 0)
-        #to match with the rest of fish
+        #size is scaled to match the sizes of other fish
+        glScalef(0.95*self.size, 0.95*self.size, 0)
+        #reverse is inverted to match direction with the rest of fish
         if not self.reverse:
             glRotatef(180, 0, 1, 0)
 
@@ -122,7 +123,8 @@ class TropicalFish(Fish):
     def draw(self):
         glPushMatrix()
         glTranslatef(self.x, self.y, 0)
-        glScalef(self.size, self.size, 0)
+        #size is scaled to match the sizes of other fish
+        glScalef(1.55*self.size, 1.55*self.size, 0)
         if self.reverse:
             glRotatef(180, 0, 1, 0)
 
@@ -159,7 +161,8 @@ class ClownFish(Fish):
     def draw(self):
         glPushMatrix()
         glTranslatef(self.x, self.y, 0)
-        glScalef(self.size, self.size, 0)
+        #size is scaled to match the sizes of other fish
+        glScalef(1.25*self.size, 1.25*self.size, 0)
         if self.reverse:
             glRotatef(180, 0, 1, 0)
         
@@ -436,7 +439,8 @@ def main():
     background = pg.image.load("assets/background.jpeg")
 
     player = Player(BasicFish(0, 0, 0.6))
-    fishList = [] 
+    #fishList = [TropicalFish(0, 0.8), ClownFish(0, 0.2), Shark(0, -0.5)] 
+    fishList = []
     items = []
 
     fish_spawn_timer = pg.USEREVENT + 1
@@ -494,7 +498,13 @@ def main():
             item.update_position()
             item.draw()
             if check_ellipse_circle_collision(player.fish.collider, item.collider):
-                print("item collided\n")
+                if(type(item) == Bubble):
+                    player.score += 1
+                elif(type(item) == Star):
+                    player.score += 10
+                elif(type(item) == ExtraLife):
+                    player.lives += 1
+                items.remove(item)
 
         
 
