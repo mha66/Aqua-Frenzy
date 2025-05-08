@@ -451,8 +451,17 @@ def main():
 
     glEnable(GL_DEPTH_TEST)  
     glDepthFunc(GL_LEQUAL)
+    
+    assets_path = "assets/"
+    background = pg.image.load(assets_path + "background.jpeg")
 
-    background = pg.image.load("assets/background.jpeg")
+    bubble_sound = pg.mixer.Sound(assets_path + "bubble-pop.mp3")
+    eat_sound = pg.mixer.Sound(assets_path + "eat.mp3")
+    lose_life_sound = pg.mixer.Sound(assets_path + "eaten.mp3")
+    extra_life_sound = pg.mixer.Sound(assets_path + "extra-life.mp3")
+    game_over_sound = pg.mixer.Sound(assets_path + "game-over.mp3")
+    music = pg.mixer.Sound(assets_path + "music.mp3")
+    star_sound = pg.mixer.Sound(assets_path + "star-pickup.mp3")
 
     player = Player(BasicFish(0, 0, 0.6))
     #fishList = [TropicalFish(0, 0.8), ClownFish(0, 0.2), Shark(0, -0.5)] 
@@ -464,6 +473,8 @@ def main():
     item_spawn_timer = pg.USEREVENT + 2
     pg.time.set_timer(item_spawn_timer, 7000)
     immunity_timer = pg.USEREVENT + 3
+
+    music.play(-1)
 
     while True:
         for event in pg.event.get():
@@ -482,6 +493,7 @@ def main():
                 items.clear()
                 pg.time.set_timer(fish_spawn_timer, 4000)
                 pg.time.set_timer(item_spawn_timer, 7000)
+                music.play(-1)
 
                 
 
@@ -502,9 +514,14 @@ def main():
                     player.fish.size += 0.04*fish.size
                     player.score += 10*fish.size
                     fishList.remove(fish)
+                    eat_sound.play()
                 elif(not player.is_immune):
                     player.lives -= 1
+                    lose_life_sound.play()
                     player.lost = player.lives == 0
+                    if player.lost:
+                        music.stop()
+                        game_over_sound.play()
                     player.is_immune = True
                     pg.time.set_timer(immunity_timer, 5000, 1)
 
@@ -524,10 +541,13 @@ def main():
             if check_ellipse_circle_collision(player.fish.collider, item.collider) and not player.lost:
                 if(type(item) == Bubble):
                     player.score += 1
+                    bubble_sound.play()
                 elif(type(item) == Star):
                     player.score += 10
+                    star_sound.play() 
                 elif(type(item) == ExtraLife):
                     player.lives += 1
+                    extra_life_sound.play()
                 items.remove(item)
 
         
