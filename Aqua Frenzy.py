@@ -9,12 +9,13 @@ from pygame.locals import *
 
 
 class Fish:
+    speed_multiplier = 1.0
     def __init__(self, x=0, y=0, size=1.0, reverse=False):
         self.x = x
         self.y = y
         self.size = size
         self.reverse = reverse
-        self.speed = random.uniform(0.005, 0.015)
+        self.speed = self.speed_multiplier * random.uniform(0.005, 0.015)
         self.collider = None    #collider defined in child classes
 
     def update_position(self):
@@ -212,6 +213,7 @@ class ClownFish(Fish):
         glPopMatrix()
 
 class Player:
+    initial_size = 0.6
     def __init__(self, fish_object, lives = 3, score = 0):
         self.fish = fish_object
         self.lives = lives
@@ -466,16 +468,18 @@ def main():
     lose_life_sound = pg.mixer.Sound(assets_path + "eaten.mp3")
     extra_life_sound = pg.mixer.Sound(assets_path + "extra-life.mp3")
     game_over_sound = pg.mixer.Sound(assets_path + "game-over.mp3")
+    level_up_sound = pg.mixer.Sound(assets_path + "level-up.mp3")
     music = pg.mixer.Sound(assets_path + "music.mp3")
     star_sound = pg.mixer.Sound(assets_path + "star-pickup.mp3")
 
-    player = Player(BasicFish(0, 0, 0.6))
+    player = Player(BasicFish(0, 0, Player.initial_size))
     #fishList = [TropicalFish(0, 0.8), ClownFish(0, 0.2), Shark(0, -0.5)] 
     fishList = []
     items = []
 
+    fish_spawn_rate = 4000
     fish_spawn_timer = pg.USEREVENT + 1
-    pg.time.set_timer(fish_spawn_timer, 4000)
+    pg.time.set_timer(fish_spawn_timer, fish_spawn_rate)
     item_spawn_timer = pg.USEREVENT + 2
     pg.time.set_timer(item_spawn_timer, 7000)
     immunity_timer = pg.USEREVENT + 3
@@ -494,10 +498,13 @@ def main():
             elif event.type == immunity_timer:
                 player.is_immune = False
             elif player.lost and (event.type == pg.MOUSEBUTTONDOWN or event.type == pg.KEYDOWN):
-                player = Player(BasicFish(0, 0, 0.6))
+                #reset game
+                player = Player(BasicFish(0, 0, Player.initial_size))
                 fishList.clear()
                 items.clear()
-                pg.time.set_timer(fish_spawn_timer, 4000)
+                Fish.speed_multiplier = 1.0
+                fish_spawn_rate = 4000
+                pg.time.set_timer(fish_spawn_timer, fish_spawn_rate)
                 pg.time.set_timer(item_spawn_timer, 7000)
                 music.play(-1)
 
@@ -520,7 +527,20 @@ def main():
                     player.fish.size += 0.04*fish.size
                     player.score += 10*fish.size
                     fishList.remove(fish)
-                    eat_sound.play()
+                    #if player fish gets too big, reset its size, level up, and make the game harder
+                    if player.fish.size >= 1.1:
+                        level_up_sound.play()
+                        player.score += 100
+                        player.fish.size = Player.initial_size
+                        Fish.speed_multiplier *= 1.1
+                        if Fish.speed_multiplier > 5:
+                            Fish.speed_multiplier = 5
+                        fish_spawn_rate = int(0.8*fish_spawn_rate)
+                        if fish_spawn_rate < 1000:
+                            fish_spawn_rate = 1000
+                        pg.time.set_timer(fish_spawn_timer, fish_spawn_rate)
+                    else:
+                        eat_sound.play()
                 elif(not player.is_immune):
                     player.lives -= 1
                     lose_life_sound.play()
