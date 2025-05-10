@@ -383,7 +383,13 @@ def spawn_fish():
 
 ITEM_CLASSES = [Bubble, Star, ExtraLife]
 def spawn_item():
-    item_class = ITEM_CLASSES[random.randint(0,2)]
+    item_class = None
+    #25% chance of spawning an extra life
+    if random.random() < 0.25:
+        item_class = ExtraLife
+    else:
+        item_class = ITEM_CLASSES[random.randint(0,1)]
+        
     x = random.uniform(-1.5, 1.5)
     y = -1.1
     move_down = random.randint(0, 1) == 1
