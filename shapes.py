@@ -108,19 +108,6 @@ def ellipse(xc, yc, radius_x, radius_y, num_segments, r, g, b, fill=True):
         glVertex2f(x, y)
     glEnd()
 
-def ellipse_3D(xc, yc, zc, radius_x, radius_y, num_segments, r, g, b, fill=True):
-    if fill:
-        glBegin(GL_TRIANGLE_FAN)
-    else:
-        glBegin(GL_LINE_LOOP)
-
-    glColor3f(r/255, g/255, b/255)
-    for i in range(num_segments):
-        angle = 2*mm.pi*i/num_segments
-        x = xc + radius_x * mm.cos(angle)
-        y = yc + radius_y * mm.sin(angle)
-        glVertex3f(x, y, zc)
-    glEnd()
 
 def ellipse_gradient(xc, yc, radius_x, radius_y, num_segments, r1, g1, b1, r2, g2, b2, ratio = 0.5):
     glBegin(GL_TRIANGLE_FAN)

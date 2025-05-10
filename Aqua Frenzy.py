@@ -551,9 +551,12 @@ def main():
                 items.remove(item)
 
         
-
+        
         draw_text(f"Score: {int(player.score)}", -1.55, 0.87, 50)
-        draw_text(f"Lives: {player.lives}", 1.25, 0.87, 50)
+        lives_color = (255, 255, 255)
+        if player.is_immune:
+            lives_color = (255, 0, 0)
+        draw_text(f"Lives: {player.lives}", 1.25, 0.87, 50, lives_color)
 
         player.check_loss()
 
