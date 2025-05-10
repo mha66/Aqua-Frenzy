@@ -214,8 +214,9 @@ class ClownFish(Fish):
 
 class Player:
     initial_size = 0.6
-    def __init__(self, fish_object, lives = 3, score = 0):
-        self.fish = fish_object
+    def __init__(self, lives = 3, score = 0):
+        fish_class = FISH_CLASSES[random.randint(0, 3)]
+        self.fish = fish_class(0, 0, self.initial_size)
         self.lives = lives
         self.score = score
         self.is_immune = False
@@ -472,7 +473,7 @@ def main():
     music = pg.mixer.Sound(assets_path + "music.mp3")
     star_sound = pg.mixer.Sound(assets_path + "star-pickup.mp3")
 
-    player = Player(BasicFish(0, 0, Player.initial_size))
+    player = Player()
     #fishList = [TropicalFish(0, 0.8), ClownFish(0, 0.2), Shark(0, -0.5)] 
     fishList = []
     items = []
@@ -499,7 +500,7 @@ def main():
                 player.is_immune = False
             elif player.lost and (event.type == pg.MOUSEBUTTONDOWN or event.type == pg.KEYDOWN):
                 #reset game
-                player = Player(BasicFish(0, 0, Player.initial_size))
+                player = Player()
                 fishList.clear()
                 items.clear()
                 Fish.speed_multiplier = 1.0
