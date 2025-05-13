@@ -25,6 +25,7 @@ class ItemCollider:
     def __init__(self, x, y, r, scale=1.0):
         self.x = x
         self.y = y
+        #size of circle depends on size of item 
         self.r = scale*r
 
     def update_position(self, x, y):
@@ -42,7 +43,7 @@ class Bubble(Item):
         glTranslatef(self.x, self.y, 0)
         circle(0, 0, radius, 180, 180, 180, 200, 0.3)
         circle(-radius * 0.3, radius * 0.3, radius * 0.3, 180, 180, 180, 200, 0.6)
-        circle(0, 0, radius, 180, 180, 180, 200, fill=False)
+        circle(0, 0, radius, 180, 180, 180, 200, fill=False)   #outline
         glPopMatrix()
 
 class ExtraLife(Item):

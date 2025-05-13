@@ -133,12 +133,13 @@ def quad_bezier_curve(x1, y1, x2, y2, x3, y3, r, g, b, fill=True, loop=False):
     t=0
     while t <= 1:
         s = 1-t
+        #linear bezier curve between point 1 and point 2
         xA = s*x1 + t*x2
         yA = s*y1 + t*y2
-        
+        #linear bezier curve between point 2 and point 3
         xB = s*x2 + t*x3
         yB = s*y2 + t*y3
-
+        #drawing point
         xP = s*xA + t*xB
         yP = s*yA + t*yB
     
@@ -157,21 +158,22 @@ def cubic_bezier_curve(x1, y1, x2, y2, x3, y3, x4, y4, r, g, b, fill=True):
     t=0
     while t <= 1:
         s = 1-t
+        #linear bezier curve between point 1 and point 2
         xA = s*x1 + t*x2
         yA = s*y1 + t*y2
-        
+        #linear bezier curve between point 2 and point 3
         xB = s*x2 + t*x3
         yB = s*y2 + t*y3
-
+        #linear bezier curve between point 3 and point 4
         xC = s*x3 + t*x4
         yC = s*y3 + t*y4
-
+        #quadratic bezier curve between point A and point B
         xP = s*xA + t*xB
         yP = s*yA + t*yB
-
+        #quadratic bezier curve between point B and point C
         xQ = s*xB + t*xC
         yQ = s*yB + t*yC
-
+        #drawing point
         xR = s*xP + t*xQ
         yR = s*yP + t*yQ
     

@@ -7,7 +7,7 @@ from pygame.locals import *
 from shapes import *
 
 class Fish:
-    speed_multiplier = 1.0
+    speed_multiplier = 1.0     #increases as the player levels up to make the game harder
     def __init__(self, x=0, y=0, size=1.0, reverse=False):
         self.x = x
         self.y = y
@@ -16,6 +16,7 @@ class Fish:
         self.speed = self.speed_multiplier * random.uniform(0.005, 0.015)
         self.collider = None    #collider defined in child classes
 
+    #used to move all fish except the player
     def update_position(self):
         if(self.reverse):
             self.x -= self.speed
@@ -29,6 +30,7 @@ class FishCollider:
     def __init__(self, x, y, rx, ry, scale=1.0):
         self.x = x
         self.y = y
+        #size of ellipse depends on size of fish 
         self.rx = scale*rx
         self.ry = scale*ry
 
@@ -36,16 +38,19 @@ class FishCollider:
         self.x = x
         self.y = y
 
+
 class BasicFish(Fish):
+    #color_schemes stores all possible color styles for each type of fish
     #(fin_color, body_color)
     color_schemes = [((183, 52, 34), (255, 111, 28)),
-                     ((86, 112, 181), (252, 218, 0))]
+                     ((86, 112, 181), (252, 218, 0)),
+                     ((255, 171, 88), (220, 220, 200))]
     
     def __init__(self, x=0, y=0, size=1.0, reverse=False, selected_color=0):
         super().__init__(x, y, size, reverse)
         self.fin_color = self.color_schemes[selected_color][0]
         self.body_color = self.color_schemes[selected_color][1]
-        self.collider = FishCollider(self.x + self.size*0.05, self.y + self.size*-0.038, 0.333, 0.16, self.size)
+        self.collider = FishCollider(self.x + self.size*0.05, self.y + self.size*-0.038, 0.333, 0.16, self.size) #an offset is added because the body of BasicFish is not centered around the origin
 
     def draw(self):
         glPushMatrix()
@@ -77,7 +82,8 @@ class BasicFish(Fish):
 
 class Shark(Fish):
     #(upper_color, lower_color)
-    color_schemes = [((151, 156, 168), (180, 186, 191))]
+    color_schemes = [((151, 156, 168), (180, 186, 191)),
+                     ((169, 108, 88), (180, 180, 180))]
 
     def __init__(self, x=0, y=0, size=1.0, reverse=False, selected_color=0):
         super().__init__(x, y, size, reverse)
@@ -88,7 +94,7 @@ class Shark(Fish):
     def draw(self):
         glPushMatrix()
         glTranslatef(self.x, self.y, 0)
-        #size is scaled to match the sizes of other fish
+        #size is scaled to match the sizes of other fish visually
         glScalef(0.95*self.size, 0.95*self.size, 0)
         #reverse is inverted to match direction with the rest of fish
         if not self.reverse:
@@ -121,7 +127,8 @@ class Shark(Fish):
 
 class TropicalFish(Fish):
     #(fin_color, body_color, gradient_color)
-    color_schemes = [((252, 218, 0), (86, 112, 181), (67, 98, 154))]
+    color_schemes = [((252, 218, 0), (86, 112, 181), (67, 98, 154)),
+                     ((234, 104, 28), (15, 32, 48), (125, 68, 38))]
 
     def __init__(self, x=0, y=0, size=1.0, reverse=False, selected_color=0):
         super().__init__(x, y, size, reverse)
@@ -133,7 +140,7 @@ class TropicalFish(Fish):
     def draw(self):
         glPushMatrix()
         glTranslatef(self.x, self.y, 0)
-        #size is scaled to match the sizes of other fish
+        #size is scaled to match the sizes of other fish visually
         glScalef(1.55*self.size, 1.55*self.size, 0)
         if self.reverse:
             glRotatef(180, 0, 1, 0)
@@ -155,7 +162,7 @@ class TropicalFish(Fish):
         #eye
         circle(0.11, 0.04, 0.015, 180, 255, 255, 255)
         circle(0.11, 0.04, 0.01, 180, 0, 0, 0)
-        #ellipse(0, 0, 0.2, 0.1, 180, 0, 0, 0, False)
+
         glPopMatrix()
 
 class ClownFish(Fish):
@@ -171,7 +178,7 @@ class ClownFish(Fish):
     def draw(self):
         glPushMatrix()
         glTranslatef(self.x, self.y, 0)
-        #size is scaled to match the sizes of other fish
+        #size is scaled to match the sizes of other fish visually
         glScalef(1.25*self.size, 1.25*self.size, 0)
         if self.reverse:
             glRotatef(180, 0, 1, 0)
@@ -203,20 +210,18 @@ class ClownFish(Fish):
         #stripes
         #right
         quad_bezier_curve(0.07, 0.11, -0.05, 0, 0.07, -0.1, 255, 255, 255)
-        quad_bezier_curve(0.07, 0.11, -0.05, 0, 0.07, -0.1, 0, 0, 0, fill=False, loop=True)
+        quad_bezier_curve(0.07, 0.11, -0.05, 0, 0.07, -0.1, 0, 0, 0, fill=False, loop=True) #outline
         
         #center
         quad_bezier_curve(-0.09, 0.135, -0.19, 0, -0.09, -0.13, 255, 255, 255)
-        quad_bezier_curve(-0.09, 0.135, -0.19, 0, -0.09, -0.13, 0, 0, 0, fill=False)
+        quad_bezier_curve(-0.09, 0.135, -0.19, 0, -0.09, -0.13, 0, 0, 0, fill=False) #outline
         quad_bezier_curve(-0.09, 0.135, 0.01, 0, -0.095, -0.13, 255, 255, 255)
-        quad_bezier_curve(-0.09, 0.135, 0.01, 0, -0.095, -0.13, 0, 0, 0, fill=False)
+        quad_bezier_curve(-0.09, 0.135, 0.01, 0, -0.095, -0.13, 0, 0, 0, fill=False) #outline
 
         #left
         quad_bezier_curve(-0.3, 0.055, -0.35, 0, -0.3, -0.05, 255, 255, 255)
-        quad_bezier_curve(-0.3, 0.055, -0.35, 0, -0.3, -0.05, 0, 0, 0, fill=False)
+        quad_bezier_curve(-0.3, 0.055, -0.35, 0, -0.3, -0.05, 0, 0, 0, fill=False) #outline
         quad_bezier_curve(-0.3, 0.055, -0.2, 0, -0.305, -0.05, 255, 255, 255)
-        quad_bezier_curve(-0.3, 0.055, -0.2, 0, -0.305, -0.05, 0, 0, 0, fill=False)
+        quad_bezier_curve(-0.3, 0.055, -0.2, 0, -0.305, -0.05, 0, 0, 0, fill=False) #outline
 
-        #ellipse(-0.1, 0, 0.3, 0.12, 180, 0, 0, 0, False)
-        # ellipse(-0.1+0.04, 0, 0.26, 0.13, 180, 0, 0, 0, False)
         glPopMatrix()
