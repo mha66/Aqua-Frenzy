@@ -191,7 +191,7 @@ def main():
                     player.score += 10*fish.size
                     fish_list.remove(fish)
                     #if player fish gets too big, reset its size, level up, and make the game harder
-                    if player.fish.size >= 1.1:
+                    if player.fish.size >= 1.05:
                         level_up_sound.play()
                         player.score += 100
                         player.fish.size = Player.initial_size
